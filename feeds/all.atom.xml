@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>41 LOG</title><link href="http://tok41.github.io/" rel="alternate"></link><link href="http://tok41.github.io/feeds/all.atom.xml" rel="self"></link><id>http://tok41.github.io/</id><updated>2017-06-25T21:20:00+09:00</updated><entry><title>ブログのテスト</title><link href="http://tok41.github.io/blog-test.html" rel="alternate"></link><published>2017-06-25T21:20:00+09:00</published><updated>2017-06-25T21:20:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-06-25:/blog-test.html</id><summary type="html">&lt;p&gt;Pythonに関する記事のtest&lt;/p&gt;</summary><content type="html">&lt;h1&gt;ブログテスト&lt;/h1&gt;
+&lt;p&gt;この記事はブログ投稿のテストをしています。&lt;/p&gt;
+&lt;p&gt;Pelicanというサイトジェネレータを使っていて、
+設定を確認するために作っています。&lt;/p&gt;
+&lt;p&gt;なので、中身は無い。&lt;/p&gt;
+&lt;h2&gt;できてないこと&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;コメント欄をつけたい&lt;/li&gt;
+&lt;li&gt;Disqusというサービスを使うらしい&lt;/li&gt;
+&lt;li&gt;参照先 → https://disqus.com/&lt;/li&gt;
+&lt;li&gt;別PCでのテスト&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;画像の貼り付けテスト&lt;/h2&gt;
+&lt;p&gt;&lt;img alt="Photo" src="/images/DSC_0591_s.jpg"&gt;&lt;/p&gt;</content><category term="pelican"></category><category term="python"></category></entry><entry><title>初めまして</title><link href="http://tok41.github.io/firstr-post.html" rel="alternate"></link><published>2017-06-25T18:13:00+09:00</published><updated>2017-06-25T18:13:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-06-25:/firstr-post.html</id><summary type="html">&lt;p&gt;ブログ始めました&lt;/p&gt;</summary><content type="html">&lt;h1&gt;最初の投稿&lt;/h1&gt;
+&lt;p&gt;ブログ作ってみたテスト。
+Pelicanを使ってコンテンツを生成する。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Markdownで書ける&lt;/li&gt;
+&lt;li&gt;テスト&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Hello World!&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以上。&lt;/p&gt;</content><category term="pelican"></category><category term="python"></category></entry></feed>
