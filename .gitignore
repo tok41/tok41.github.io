@@ -1,0 +1,14 @@
+## Pelican
+output/*
+pelican-octopress-theme-master/*
+themes/*
+*.pid
+
+## Python
+*.py[cod]
+*.pyc
+
+## Mac OS X
+.DS_Store
+.*~
+*~
