@@ -18,6 +18,7 @@ Pelicanというサイトジェネレータを使っていて、
 - コメント欄をつけたい
   - Disqusというサービスを使うらしい
   - 参照先 → https://disqus.com/
+- 別PCでのテスト
 
 ## 画像の貼り付けテスト
 ![Photo](/images/DSC_0591_s.jpg)
