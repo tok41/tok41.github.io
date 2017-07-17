@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="tok41" />
+        <meta name="copyright" content="tok41" />
+
+        <meta name="twitter:creator" content="@yoichi_t">
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="programming, Haskell, jupyter, Haskell, " />
+
+<meta property="og:title" content="jupyterでHaskellを使うための第一歩 "/>
+<meta property="og:url" content="http://tok41.github.io/haskell-jupyter.html" />
+<meta property="og:description" content="Haskellをjupyterで使う手順の解説をしてみる。" />
+<meta property="og:site_name" content="41 LOG" />
+<meta property="og:article:author" content="tok41" />
+<meta property="og:article:published_time" content="2017-07-09T22:50:00+09:00" />
+<meta name="twitter:title" content="jupyterでHaskellを使うための第一歩 ">
+<meta name="twitter:description" content="Haskellをjupyterで使う手順の解説をしてみる。">
+
+        <title>jupyterでHaskellを使うための第一歩  · 41 LOG
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/custom.css" media="screen">
+        <link href="http://tok41.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="41 LOG - Full Atom Feed" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://tok41.github.io/"><span class=site-name>41 LOG</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://tok41.github.io">Home</a></li>
+                            <li ><a href="http://tok41.github.io/pages/about-me.html">About Me</a></li>
+                            <li ><a href="http://tok41.github.io/categories.html">Categories</a></li>
+                            <li ><a href="http://tok41.github.io/tags.html">Tags</a></li>
+                            <li ><a href="http://tok41.github.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://tok41.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://tok41.github.io/haskell-jupyter.html"> jupyterでHaskellを使うための第一歩  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <p>Haskellという言語がすごく良いらしい。</p>
+<p>ということで、まずはHaskellの実行環境を構築することにした。
+普段は主に、Python+Jupyterでデータ分析系のプログラムを書いて生活しているので、JupyterにHaskellカーネルを導入することにした。</p>
+<p>自分のための備忘録と、初めてHaskell触るという人の参考になれば。
+超初心者向けなので新しい知見は特に無いです。</p>
+<h1>はじめに</h1>
+<p>Haskellをやってみるにあたって、たぶん最も有名であろう
+「<a href="https://www.amazon.co.jp/%E3%81%99%E3%81%94%E3%81%84Haskell%E3%81%9F%E3%81%AE%E3%81%97%E3%81%8F%E5%AD%A6%E3%81%BC%E3%81%86-Miran-Lipova%C4%8Da/dp/4274068854">すごいHaskell</a>」を読んでいる(以下、「すごいH本」と略記する)。
+本書では、Haskellの実行環境としてGHC（The Glasgow Haskell Compiler）をインストールし、インタラクティブなHaskell実行環境であるGHCiを使っている。</p>
+<p>しかし、GHCiでは変数の定義にlet句をつけなきゃいけないなどちょっと面倒だったので、jupyterにHaskellカーネルを導入して学習することにした。</p>
+<p>本記事では、はじめに私の実行環境を説明する。
+そして、GHCをインストールしてGHCiをまずは使ってみる手順を紹介する。
+次に、jupyterのHaskellカーネルであるiHaskellのインストール手順を紹介し、jupyter上での実際のHaskellプログラミングについて簡単に解説する。</p>
+<p>なお、iHaskellだけを使いたい場合、最初のGHCのインストールはたぶん不要。
+また、Dockerを利用するとiHaskellの導入はすごく簡単らしいし日本語の解説も多いので、
+Dockerを使ったほうが良いかもしれない（この記事ではDockerについては一切触れない）。</p>
+<h1>1 環境</h1>
+<ul>
+<li>OS : Ubuntu 16.04.2 LTS</li>
+<li>CPU : Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz</li>
+<li>RAM : 8GB</li>
+<li>jupyter : 4.3.0 (Anacondaで導入済み)<ul>
+<li>jupyterの拡張機能はすでにインストール済み</li>
+</ul>
+</li>
+</ul>
+<h1>2 GHCのインストール</h1>
+<ul>
+<li>まずは<a href="https://www.haskell.org/platform/#linux-ubuntu">公式ページ</a>を参照。</li>
+<li>「Haskell ubuntu」あたりをクエリとしてググった</li>
+<li>上記ページから「Choose your distribution」で「Ubuntu」を選択</li>
+<li>apt-getでインストールできるぜと書いてあるのでそのまま素直に実行</li>
+</ul>
+<div class="highlight"><pre><span></span>$ sudo apt-get install haskell-platform
+</pre></div>
+
+
+<h2>2.1 GHCiを触ってみる</h2>
+<ul>
+<li>インストールしたんだから触ってみよう</li>
+<li>ghciコマンドを実行するだけ</li>
+</ul>
+<div class="highlight"><pre><span></span>$ ghci
+GHCi, version <span class="m">7</span>.10.3: http://www.haskell.org/ghc/  :? <span class="k">for</span> <span class="nb">help</span>
+Prelude&gt; 
+</pre></div>
+
+
+<ul>
+<li>インタラクティブなHaskell実行環境が立ち上がった<ul>
+<li>プロンプトが出ているので、ここにコードを書いていけば良い</li>
+<li>実際にはすごいH本にある例をいくつか書いてみたが、ここでは割愛</li>
+</ul>
+</li>
+<li>終了するには":q" or ":quit"を入力</li>
+</ul>
+<div class="highlight"><pre><span></span>Prelude&gt; :q
+Leaving GHCi.
+</pre></div>
+
+
+<ul>
+<li>とりあえず動いた</li>
+</ul>
+<h2>2.2 GHCのバージョン</h2>
+<ul>
+<li>apt-getでインストールすると、7.10.3がインストールされる</li>
+</ul>
+<div class="highlight"><pre><span></span>$ ghc --version
+The Glorious Glasgow Haskell Compilation System, version <span class="m">7</span>.10.3
+</pre></div>
+
+
+<ul>
+<li>しかし、本記事作成時点(2017/07/09)ではすでに8系がリリースされている<ul>
+<li>これがすぐ後で問題になる</li>
+</ul>
+</li>
+</ul>
+<h1>3 iHaskellのインストール</h1>
+<ul>
+<li>jupyterにHaskellカーネルを導入するために、IHaskellをインストールする。</li>
+<li><a href="https://github.com/gibiansky/IHaskell">公式ページ</a>を確認</li>
+<li>UbuntuへのインストールなのでLinuxの項目を確認すると、(1)apt-getでpythonなどのライブラリをいくつか導入し、(2)jupyter関連のパッケージをインストール、(3)stackをインストール、(4)IHaskellのインストール。という手順らしい。</li>
+</ul>
+<h2>3.1 諸々のライブラリのインストール</h2>
+<ul>
+<li>上記のページの指示にそのまま従い、以下のコマンドを実行</li>
+</ul>
+<div class="highlight"><pre><span></span>$ sudo apt-get install -y python3-pip git libtinfo-dev libzmq3-dev libcairo2-dev libpango1.0-dev libmagic-dev libblas-dev liblapack-dev
+</pre></div>
+
+
+<h2>3.2 jupyter関連のパッケージをインストール</h2>
+<ul>
+<li>次の指示では、requirements.txtの中身を入れろとある</li>
+<li>requirementsを確認すると、jupyterと関連のパッケージを入れることになっているが、全て既存環境にインストール済みなのでここでは無視</li>
+</ul>
+<h2>3.3 stackのインストール</h2>
+<ul>
+<li>stackというのは、Haskellパッケージの管理をするためのツールらしい</li>
+<li>ビルドとかインストールとか、別バージョンのHaskellの管理などもできるらしいが、詳しいことはまだよくわかっていないので、調べたら別に記事を書こう。</li>
+</ul>
+<div class="highlight"><pre><span></span>$ curl -sSL https://get.haskellstack.org/ <span class="p">|</span> sh
+</pre></div>
+
+
+<h2>3.4 IHaskellのインストール</h2>
+<ul>
+<li>IHaskellのgitリポジトリをclone</li>
+</ul>
+<div class="highlight"><pre><span></span>$ git clone https://github.com/gibiansky/IHaskell
+$ <span class="nb">cd</span> IHaskell
+</pre></div>
+
+
+<ul>
+<li>stackでアプリのインストール</li>
+</ul>
+<div class="highlight"><pre><span></span>$ stack install gtk2hs-buildtools
+
+No compiler found, expected minor version match with ghc-8.0.2 <span class="o">(</span>x86_64<span class="o">)</span> <span class="o">(</span>based on resolver setting in /home/yoichi/work/training/haskell/IHaskell/stack.yaml<span class="o">)</span>.
+To install the correct GHC into /home/yoichi/.stack/programs/x86_64-linux/, try running <span class="s2">&quot;stack setup&quot;</span> or use the <span class="s2">&quot;--install-ghc&quot;</span> flag.
+</pre></div>
+
+
+<ul>
+<li>GHCのバージョンが合ってないと怒られた</li>
+<li>stackを使ってビルドしたりインストールするには、stack.yamlにコンパイラ（GHC）のバージョンを書いたり、関連パッケージを書いたりするらしいのだが、「resolver: lts-8.22」と書かれている</li>
+<li>先のGHCのインストールではapt-getでインストールすると7系が入ったので、当然8系は入っていない</li>
+<li>でもstackなら問題なし</li>
+<li>stack.yamlの設定で不足があれば、<code>stack setup</code>コマンドで自動で環境を構築できる</li>
+</ul>
+<div class="highlight"><pre><span></span>$ stack setup
+
+Preparing to install GHC to an isolated location.
+This will not interfere with any system-level installation.
+Downloaded ghc-8.0.2.                                      
+Installed GHC.
+stack will use a sandboxed GHC it installed
+For more information on paths, see <span class="s1">&#39;stack path&#39;</span> and <span class="s1">&#39;stack exec env&#39;</span>
+To use this GHC and packages outside of a project, consider using:
+stack ghc, stack ghci, stack runghc, or stack <span class="nb">exec</span>
+</pre></div>
+
+
+<ul>
+<li>再度install作業開始</li>
+</ul>
+<div class="highlight"><pre><span></span>$ stack install gtk2hs-buildtools
+$ stack install --fast
+  <span class="c1"># 結構時間かかる</span>
+$ stack <span class="nb">exec</span> ihaskell -- install --stack
+</pre></div>
+
+
+<p>できた！</p>
+<h1>4 jupyter+Haskell</h1>
+<h2>4.1 Haskellカーネルのjupyter notebookを作成</h2>
+<ul>
+<li>stackを使ってjupyterを立ち上げる</li>
+</ul>
+<div class="highlight"><pre><span></span>$ stack <span class="nb">exec</span> jupyter -- notebook
+</pre></div>
+
+
+<ul>
+<li>いつものjupyterが立ち上がるので、新規ノートブック作成時にカーネルをpythonではなくHaskellを選択</li>
+</ul>
+<p><img alt="jupyter-haskell-kernel" src="/images/jupyter-haskell-kernel.png"></p>
+<h2>4.2 使ってみる</h2>
+<ul>
+<li>GHCiに記入するのと同じ要領でセルに関数を記入</li>
+<li>セル毎にコンパイルしてメモリ空間に展開するようなので、すごいH本にあるように、let式で名前を定義したりしないで良いみたい（？）</li>
+</ul>
+<p><img alt="jupyter-first-sample" src="/images/jupyter-haskell-notebook-firstsample.png"></p>
+<h1>終わりに</h1>
+<p>ここまでで、jupyter上でHaskellコードを書く環境の構築をやってみた。
+とはいっても、ほぼ公式の指示に従っただけなので、新しい知見は特に無い。</p>
+<p>IHaskell、ざっと使ってみたところ、
+エディタを立ち上げて別ファイルに関数を書いてそれをロードしてといった手間が無いので、
+ちょっとだけ効率的かなと感じている。
+あとは、すごいH本を読みながら使ってみて何かアップデートがあれば追記していく。</p>
+<h2>今後の課題</h2>
+<ul>
+<li>stackについて調べて何をやっているのか解説を追記</li>
+<li>IHaskellの利用例が貧弱なのでもう少し何か書いた例を追記</li>
+</ul>
+<h1>参考</h1>
+<ul>
+<li><a href="https://www.haskell.org/platform/#linux-ubuntu">Haskellプラットフォーム</a></li>
+<li><a href="https://github.com/gibiansky/IHaskell">IHaskell(GitHub)</a></li>
+</ul>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2017-07-09T22:50:00+09:00"> 7月 9, 2017</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://tok41.github.io/categories.html#haskell-ref">Haskell</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://tok41.github.io/tags.html#haskell-ref">Haskell
+                    <span>1</span>
+</a></li>
+                <li><a href="http://tok41.github.io/tags.html#jupyter-ref">jupyter
+                    <span>1</span>
+</a></li>
+                <li><a href="http://tok41.github.io/tags.html#programming-ref">programming
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="https://twitter.com/yoichi_t" title="My Twitter Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-twitter sidebar-social-links"></i></a>
+    <a href="https://github.com/tok41" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

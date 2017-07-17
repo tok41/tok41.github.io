@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="tok41" />
+        <meta name="copyright" content="tok41" />
+
+        <meta name="twitter:creator" content="@yoichi_t">
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="python, pelican, Pelican, " />
+
+<meta property="og:title" content="GitHubPagesとPelicanで始めるブログ(WIP) "/>
+<meta property="og:url" content="http://tok41.github.io/how-to-start-pelicanblog.html" />
+<meta property="og:description" content="Pelican（Pythonベースの静的webサイトジェネレータ）GitHubPages上でブログを始める方法の解説。" />
+<meta property="og:site_name" content="41 LOG" />
+<meta property="og:article:author" content="tok41" />
+<meta property="og:article:published_time" content="2017-07-17T22:50:00+09:00" />
+<meta name="twitter:title" content="GitHubPagesとPelicanで始めるブログ(WIP) ">
+<meta name="twitter:description" content="Pelican（Pythonベースの静的webサイトジェネレータ）GitHubPages上でブログを始める方法の解説。">
+
+        <title>GitHubPagesとPelicanで始めるブログ(WIP)  · 41 LOG
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/custom.css" media="screen">
+        <link href="http://tok41.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="41 LOG - Full Atom Feed" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://tok41.github.io/"><span class=site-name>41 LOG</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://tok41.github.io">Home</a></li>
+                            <li ><a href="http://tok41.github.io/pages/about-me.html">About Me</a></li>
+                            <li ><a href="http://tok41.github.io/categories.html">Categories</a></li>
+                            <li ><a href="http://tok41.github.io/tags.html">Tags</a></li>
+                            <li ><a href="http://tok41.github.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://tok41.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://tok41.github.io/how-to-start-pelicanblog.html"> GitHubPagesとPelicanで始めるブログ(WIP)  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <p>ということで、ブログをやろうと思う。
+（これまでに何度も挫折しているので、今度こそ長続きすると良いな）</p>
+<p>ここでは、ブログ初心者が無料でブログを開設するためにやったことをまとめます。
+自分のための備忘録と、同じように悩んでる人の参考になれば。</p>
+<h1>はじめに</h1>
+<p>ブログ初心者なので、ブログというのをどうやって始めたら良いのかわかっていない。
+ずい分昔（10年以上前）には、HTMLを直接書いてwebサーバに上げるようなことはやっていたものの、ここ最近のツールには全くもって疎いのです。</p>
+<p>どうやって運用するかちょっと調べたところ、
+GithubにGithubPagesという静的なwebサイトをホスティングしてくれるサービスがあるということを知った。
+無料で(ここ重要)。
+静的なwebページを良い感じに作成するツールがいくつかあるということも知った。
+無料で(ここ重要)。
+静的サイトジェネレータとしては、いろいろあるみたいだが、
+PythonとMarkdownで書けるということで、
+<a href="http://docs.getpelican.com/en/stable/">Pelican</a>というジェネレータを使うことにした。</p>
+<p>そこで、GithubPages+Pelicanでブログを構築してみたので、
+手順を紹介します。</p>
+<h1>1 手順の概要</h1>
+<p>GithubPages+Pelicanでブログを開設するための手順の概要</p>
+<ul>
+<li>GithubPages用のリポジトリ作成<ul>
+<li>Githubに公開用のリポジトリを作成する</li>
+<li>すでにGithubにアカウントがあることが前提</li>
+</ul>
+</li>
+<li>Pelicanのインストール<ul>
+<li>インストールと初期設定をする</li>
+</ul>
+</li>
+<li>記事の作成と公開<ul>
+<li>markdownで記事を作成し、htmlを作成してGithubPagesで公開するまでの手順</li>
+</ul>
+</li>
+<li>（おまけ）ソース管理<ul>
+<li>markdownで書いたソースを管理するための手順</li>
+<li>外出用のマシンと家でコードを書いて実験するためのマシンとそれぞれ使いたいので、ソースをgithubで管理する</li>
+</ul>
+</li>
+</ul>
+<h1>2 GithubPages用のリポジトリ作成</h1>
+<p>まず、公開用のリポジトリを作成する。
+このリポジトリのmasterブランチにhtmlを置いておくことで、Webサイトを公開することができる。</p>
+<ul>
+<li>Githubの自分のアカウントで、<code>{username}.github.io</code>というリポジトリを作成<ul>
+<li>私の場合は<code>tok41.github.io</code></li>
+</ul>
+</li>
+<li>このリポジトリを作ることで、グローバルに以下のURLでアクセスできる<ul>
+<li><code>http://{username}.github.io</code></li>
+</ul>
+</li>
+</ul>
+<h1>3 Pelicanのインストール</h1>
+<h2>3.1 Pelican用の仮想環境を用意</h2>
+<p>Pelicanはブログにしか使わないので、
+他のPython環境と分けるために、virtualenvで環境を分離する。
+気にしない人はこの手順を飛ばしても良い。</p>
+<p>なお、pyenv, virtualenvが導入されていることを前提にします。
+（無い場合には飛ばしても良いし、ググれば手順が公開されてます）</p>
+<ul>
+<li>python2.7をpyenvで別に用意する</li>
+</ul>
+<div class="highlight"><pre><span></span>$ pyenv install -l  <span class="c1"># &lt;- pyenvでインストールできるPythonを探す</span>
+$ pyenv install <span class="m">2</span>.7.11 <span class="c1"># &lt;- 導入時点で2.7.11が最新だった</span>
+</pre></div>
+
+
+<ul>
+<li>~/{適当なディレクトリ}/Pelican-Blog を作成<ul>
+<li>ブログのソースを置いたりするためのディレクトリ</li>
+</ul>
+</li>
+<li>pyenvで仮想環境を作成</li>
+</ul>
+<div class="highlight"><pre><span></span>cd ~/{適当なディレクトリ}/Pelican-Blog
+$ pyenv virtualenv 2.7.11 PelicanBlog
+        # PelicanBlogという名前の環境を作る
+$ pyenv local PelicanBlog
+        # Pelican-Blogに来たらPelicanBlog環境になるように設定
+</pre></div>
+
+
+<h2>3.2 Pelicanのインストール</h2>
+<ul>
+<li>pipでインストール</li>
+</ul>
+<div class="highlight"><pre><span></span>$ pip install pelican
+$ pip install Markdown
+      <span class="c1"># Markdownで記事を書くために</span>
+$ pip install ghp-import
+      <span class="c1"># Github Pagesへの公開操作をやってくれるパッケージ</span>
+      <span class="c1"># 公開操作→masterブランチに各種htmlファイルなどをpush</span>
+</pre></div>
+
+
+<h2>3.3 pelican-quickstartで雛形の作成</h2>
+<ul>
+<li>対話形式でwebぺーじの初期設定をするためのツール</li>
+</ul>
+<div class="highlight"><pre><span></span>$ pelican-quickstart
+</pre></div>
+
+
+<ul>
+<li>基本はdefaultで答えていけばよいかと</li>
+<li>この設定が済めば以下のようなファイルが自動で生成されているはず</li>
+</ul>
+<div class="highlight"><pre><span></span>Pelican<span class="o">-</span>Blog
+  <span class="o">|-</span> content<span class="o">/</span> <span class="o">&lt;-</span> このディレクトリ以下に記事を書いていく
+  <span class="o">|-</span> output<span class="o">/</span>  <span class="o">&lt;-</span> 生成されたhtmlなどが配置される
+  <span class="o">|-</span> develop_server.sh
+  <span class="o">|-</span> fabfile.py
+  <span class="o">|-</span> Makefile
+  <span class="o">|-</span> pelicanconf.py  <span class="o">&lt;-</span>各種設定を書く
+  <span class="o">|-</span> publishconf.py
+</pre></div>
+
+
+<h1>4 記事の作成と公開</h1>
+<h2>4.1 記事の作成</h2>
+<p>記事はcontentディレクトリ以下に書く。
+このとき、content以下にディレクトリを作成すると、
+そのディレクトリがブログカテゴリと自動で認識される。
+記事のソース中でカテゴリを指定することもできるが、
+ディレクトリ分けたほうが管理の上でも良いでしょう。</p>
+<p>また、pagesというディレクトリは、特殊なカテゴリで、
+aboutmeなどのページを作成する目的で使われるらしい。</p>
+<div class="highlight"><pre><span></span>content/
+  |- pages/
+       |- Aboutme.mdなど
+  |- Category1/
+  |- Category2/
+  |- ...
+</pre></div>
+
+
+<h2>4.2 実際に記事を書く</h2>
+<p>contentディレクトリ以下に記事を書く。
+先の手順でMarkdownパッケージをインストールしているため、
+拡張子<code>.md</code>で作成する。</p>
+<div class="highlight"><pre><span></span>$ emacs first-post.md
+</pre></div>
+
+
+<p>サンプルのソース。</p>
+<div class="highlight"><pre><span></span>Title: 初めまして
+Date: 2017-06-25 18:13
+Modified: 2017-06-25 18:13
+Category: Pelican
+Tags: pelican, python
+Slug: firstr-post
+Authors: tok41
+Summary: ブログ始めました
+
+# 最初の投稿
+
+ブログ作ってみたテスト。
+Pelicanを使ってコンテンツを生成する。
+
+- Markdownで書ける
+- テスト
+\```python            (実際はバックスラッシュはいらない)
+print &#39;Hello World!&#39;
+\```                  (実際はバックスラッシュはいらない)
+
+以上。
+</pre></div>
+
+
+<ul>
+<li>ブログソースの先頭には、記事の情報を記載する<ul>
+<li>key:value という形式</li>
+<li>keyの最新情報を確認するために、<a href="http://docs.getpelican.com/en/stable/content.html">公式ページ</a>を参考にする</li>
+</ul>
+</li>
+</ul>
+<h2>4.3 記事のコンパイル</h2>
+<ul>
+<li>記事を作成したらコンパイルする<ul>
+<li>pelican-quickstartでMakefileができているはずなので、以下のコマンドを使う</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre><span></span>$ make html
+</pre></div>
+
+
+<ul>
+<li>ローカルに記事のチェックをするためにwebサーバを立てる</li>
+</ul>
+<div class="highlight"><pre><span></span>$ make serve
+</pre></div>
+
+
+<ul>
+<li>localhostの8000ポートにアクセスして記事をチェックする<ul>
+<li>http://localhost:8000</li>
+</ul>
+</li>
+</ul>
+<h2>4.4 記事の公開</h2>
+<ul>
+<li>チェックが済んだらいよいよ記事を公開する</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">make</span> <span class="n">publish</span>  <span class="c1"># &lt;-公開用にｈｔｍｌを作成</span>
+<span class="err">$</span> <span class="n">git</span> <span class="n">init</span>
+<span class="err">$</span> <span class="n">ghp</span><span class="o">-</span><span class="kn">import</span> <span class="nn">output</span>  <span class="c1"># &lt;-ghp-importで公開用のディレクトリ指定</span>
+<span class="err">$</span> <span class="n">git</span> <span class="n">push</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">tok41</span><span class="o">/</span><span class="n">tok41</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">git</span> <span class="n">gh</span><span class="o">-</span><span class="n">pages</span><span class="p">:</span><span class="n">master</span>  <span class="c1"># &lt;- githubにpushする</span>
+</pre></div>
+
+
+<ul>
+<li>実際にブラウザで確認すると、グローバルに公開されていることが確認できる<ul>
+<li><code>http://{username}.github.io</code></li>
+<li>このブログでは<a href="http://tok41.github.io">http://tok41.github.io</a></li>
+</ul>
+</li>
+</ul>
+<h2>4.5 日々の公開手順</h2>
+<p>日々の公開手順をまとめると以下のようになる。</p>
+<ul>
+<li>記事をcontent以下に作成し、内容を確認する</li>
+</ul>
+<div class="highlight"><pre><span></span>$ emacs <span class="o">{</span>article_name<span class="o">}</span>.md
+$ make html
+$ make serve
+</pre></div>
+
+
+<ul>
+<li>公開用にコンパイル</li>
+</ul>
+<div class="highlight"><pre><span></span>$ make publish
+</pre></div>
+
+
+<ul>
+<li>gh-pagesで公開操作</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">ghp</span><span class="o">-</span><span class="kn">import</span> <span class="nn">output</span>
+<span class="err">$</span> <span class="n">git</span> <span class="n">push</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="p">{</span><span class="n">username</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">username</span><span class="p">}</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">git</span> <span class="n">gh</span><span class="o">-</span><span class="n">pages</span><span class="p">:</span><span class="n">master</span>
+</pre></div>
+
+
+<h1>5 （おまけ）ソース管理</h1>
+<p>gh-pagesでは、生成したhtmlをgithubにpushするので、ソース自体はローカルに保存されたままである。
+しかし、ブログのソースもgithubで管理して、複数のマシンで記事を作成したいと思っている。
+なぜなら、外出用のマシンと、コードを書いて実験するためのマシンが別で、実験用マシンでも記事を書きたいので。</p>
+<h2>5.1 構成</h2>
+<ul>
+<li>構成としては、リポジトリを共通として、ブランチを分けることで対処することにした。</li>
+</ul>
+<div class="highlight"><pre><span></span>tok41.github.io
+  <span class="o">|-</span> master   <span class="o">&lt;-</span> 公開用のブランチ
+  <span class="o">|-</span> <span class="kn">source</span>   <span class="o">&lt;-</span> ソース管理用のブランチ
+</pre></div>
+
+
+<h1>おわりに</h1>
+<p>以上、簡単にGithubPages+Pelicanでブログを作成する手順を紹介しました。</p>
+<p>まだまだわからないことが多いので、少しずつアップデートしていこうと思います。</p>
+<h2>Future-Work</h2>
+<ul>
+<li>ソース管理の詳細を追記</li>
+<li>テーマの適用について追記する</li>
+<li>画像の貼り付けについて追記する</li>
+<li>コメント欄の設定について追記する</li>
+</ul>
+<h1>参考サイト</h1>
+<p>参考にさせていただいたサイト</p>
+<ul>
+<li><a href="http://docs.getpelican.com/en/stable/">Pelican</a></li>
+<li><a href="http://blog.sotm.jp/2014/01/04/Pelican-Markdown-GithubPages-install-guide/">Pelican + Markdown + GitHub Pagesで管理するブログの作り方</a></li>
+<li><a href="http://daikishimada.github.io/pelican-start.html">PELICAN + GITHUB PAGES でブログを作った話</a></li>
+<li><a href="http://qiita.com/ogrew/items/ecef0a4700d5bd4d875d">Pythonの静的サイトジェネレータ"Pelican"でお手軽にブログをはじめる手順</a></li>
+</ul>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2017-07-17T22:50:00+09:00"> 7月 17, 2017</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://tok41.github.io/categories.html#pelican-ref">Pelican</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://tok41.github.io/tags.html#pelican-ref">pelican
+                    <span>3</span>
+</a></li>
+                <li><a href="http://tok41.github.io/tags.html#python-ref">python
+                    <span>3</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="https://twitter.com/yoichi_t" title="My Twitter Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-twitter sidebar-social-links"></i></a>
+    <a href="https://github.com/tok41" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

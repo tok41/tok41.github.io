@@ -11,14 +11,12 @@
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary">
 
-<meta property="og:title" content="All Categories · 41 LOG"/>
-<meta name="twitter:title" content="All Categories · 41 LOG">
-<meta property="og:url" content="http://tok41.github.io/categories.html" />
-<meta property="og:description" content="All categories of the 41 LOG blog" />
-<meta name="twitter:description" content="All categories of the 41 LOG blog">
+<meta property="og:title" content="41 LOG"/>
+<meta name="twitter:title" content="41 LOG">
+<meta property="og:url" content="http://tok41.github.io" />
 <meta property="og:site_name" content="41 LOG" />
 <meta property="og:article:author" content="tok41" />
-        <title>All Categories · 41 LOG
+        <title>41 LOG
 </title>
         <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
@@ -27,9 +25,6 @@
         <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/elegant.css" media="screen">
         <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/custom.css" media="screen">
         <link href="http://tok41.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="41 LOG - Full Atom Feed" />
-
-        <link href="http://tok41.github.io/feeds/haskell.atom.xml" type="application/atom+xml" rel="alternate" title="41 LOG - Haskell Category Atom Feed" />
-        <link href="http://tok41.github.io/feeds/pelican.atom.xml" type="application/atom+xml" rel="alternate" title="41 LOG - Pelican Category Atom Feed" />
     </head>
     <body>
         <div id="content-sans-footer">
@@ -46,7 +41,7 @@
                         <ul class="nav pull-right top-menu">
                             <li ><a href="http://tok41.github.io">Home</a></li>
                             <li ><a href="http://tok41.github.io/pages/about-me.html">About Me</a></li>
-                            <li  class="active"><a href="http://tok41.github.io/categories.html">Categories</a></li>
+                            <li ><a href="http://tok41.github.io/categories.html">Categories</a></li>
                             <li ><a href="http://tok41.github.io/tags.html">Tags</a></li>
                             <li ><a href="http://tok41.github.io/archives.html">Archives</a></li>
                             <li><form class="navbar-search" action="http://tok41.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
@@ -60,49 +55,28 @@
                 <div class="span1"></div>
                 <div class="span10">
 <div class="row-fluid">
-    <header class="page-header span10 offset2">
-    <h1><a href="http://tok41.github.io/categories.html">All Categories</a></h1>
-    </header>
-</div>
 
+    <div class="row-fluid">
 
-<div class="row-fluid">
-    <div class="span8 offset2">
-        <div class="accordion" id="accordion2">
-            <div class="accordion-group">
-                <div class="accordion-heading">
-                    <a class="accordion-toggle list-of-categories" data-toggle="collapse" data-parent="#accordion2" href="#haskell-ref">
-                        Haskell<span>1</span>
-                    </a>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span8 offset2">
+            <header>
+            <h1 id="recent-posts">Recent Posts <a id="allposts" href="http://tok41.github.io/archives.html">all posts</a></h1>
+            </header>
+        <div class="recent-posts">
+            <article>
+                <a href="http://tok41.github.io/haskell-jupyter.html">jupyterでHaskellを使うための第一歩  </a>
+                <section>
+                    posted in
+                <a href="http://tok41.github.io/categories.html#haskell-ref">Haskell</a>
+                <div class="recent-posts-time">
+                <time pubdate="pubdate" datetime="2017-07-09T22:50:00+09:00">日 09 7月 2017</time>
                 </div>
-                <div id="haskell-ref" class="accordion-body collapse">
-                    <div class="accordion-inner">
-                        <ul class="list-articles-category">
- 
-                            <li><time pubdate="pubdate" datetime="2017-07-09T22:50:00+09:00">日 09 7月 2017</time><a href="http://tok41.github.io/haskell-jupyter.html">jupyterでHaskellを使うための第一歩  </a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-group">
-                <div class="accordion-heading">
-                    <a class="accordion-toggle list-of-categories" data-toggle="collapse" data-parent="#accordion2" href="#pelican-ref">
-                        Pelican<span>3</span>
-                    </a>
-                </div>
-                <div id="pelican-ref" class="accordion-body collapse">
-                    <div class="accordion-inner">
-                        <ul class="list-articles-category">
- 
-                            <li><time pubdate="pubdate" datetime="2017-07-17T22:50:00+09:00">月 17 7月 2017</time><a href="http://tok41.github.io/how-to-start-pelicanblog.html">GitHubPagesとPelicanで始めるブログ(WIP)  </a></li>
- 
-                            <li><time pubdate="pubdate" datetime="2017-06-25T21:20:00+09:00">日 25 6月 2017</time><a href="http://tok41.github.io/blog-test.html">ブログのテスト  </a></li>
- 
-                            <li><time pubdate="pubdate" datetime="2017-06-25T18:13:00+09:00">日 25 6月 2017</time><a href="http://tok41.github.io/firstr-post.html">初めまして  </a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+                </section>
+            </article>
+        </div>
         </div>
     </div>
 </div>
@@ -126,18 +100,6 @@
                 return (query.length > 0);
             }
         </script>
-
-<script  language="javascript" type="text/javascript">
-    function uncollapse() {
-            $(window.location.hash).collapse({
-                toggle: true
-            })
-    }
-</script>
-
-<script type="text/javascript" language="JavaScript">
-    uncollapse(); 
-</script>
     </body>
     <!-- Theme: Elegant built for Pelican
     License : http://oncrashreboot.com/pelican-elegant -->

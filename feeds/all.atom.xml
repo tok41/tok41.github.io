@@ -1,5 +1,472 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>41 LOG</title><link href="http://tok41.github.io/" rel="alternate"></link><link href="http://tok41.github.io/feeds/all.atom.xml" rel="self"></link><id>http://tok41.github.io/</id><updated>2017-06-25T21:20:00+09:00</updated><entry><title>ブログのテスト</title><link href="http://tok41.github.io/blog-test.html" rel="alternate"></link><published>2017-06-25T21:20:00+09:00</published><updated>2017-06-25T21:20:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-06-25:/blog-test.html</id><summary type="html">&lt;p&gt;Pythonに関する記事のtest&lt;/p&gt;</summary><content type="html">&lt;h1&gt;ブログテスト&lt;/h1&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>41 LOG</title><link href="http://tok41.github.io/" rel="alternate"></link><link href="http://tok41.github.io/feeds/all.atom.xml" rel="self"></link><id>http://tok41.github.io/</id><updated>2017-07-17T22:50:00+09:00</updated><entry><title>GitHubPagesとPelicanで始めるブログ(WIP)</title><link href="http://tok41.github.io/how-to-start-pelicanblog.html" rel="alternate"></link><published>2017-07-17T22:50:00+09:00</published><updated>2017-07-17T22:50:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-07-17:/how-to-start-pelicanblog.html</id><summary type="html">&lt;p&gt;Pelican（Pythonベースの静的webサイトジェネレータ）GitHubPages上でブログを始める方法の解説。&lt;/p&gt;</summary><content type="html">&lt;p&gt;ということで、ブログをやろうと思う。
+（これまでに何度も挫折しているので、今度こそ長続きすると良いな）&lt;/p&gt;
+&lt;p&gt;ここでは、ブログ初心者が無料でブログを開設するためにやったことをまとめます。
+自分のための備忘録と、同じように悩んでる人の参考になれば。&lt;/p&gt;
+&lt;h1&gt;はじめに&lt;/h1&gt;
+&lt;p&gt;ブログ初心者なので、ブログというのをどうやって始めたら良いのかわかっていない。
+ずい分昔（10年以上前）には、HTMLを直接書いてwebサーバに上げるようなことはやっていたものの、ここ最近のツールには全くもって疎いのです。&lt;/p&gt;
+&lt;p&gt;どうやって運用するかちょっと調べたところ、
+GithubにGithubPagesという静的なwebサイトをホスティングしてくれるサービスがあるということを知った。
+無料で(ここ重要)。
+静的なwebページを良い感じに作成するツールがいくつかあるということも知った。
+無料で(ここ重要)。
+静的サイトジェネレータとしては、いろいろあるみたいだが、
+PythonとMarkdownで書けるということで、
+&lt;a href="http://docs.getpelican.com/en/stable/"&gt;Pelican&lt;/a&gt;というジェネレータを使うことにした。&lt;/p&gt;
+&lt;p&gt;そこで、GithubPages+Pelicanでブログを構築してみたので、
+手順を紹介します。&lt;/p&gt;
+&lt;h1&gt;1 手順の概要&lt;/h1&gt;
+&lt;p&gt;GithubPages+Pelicanでブログを開設するための手順の概要&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;GithubPages用のリポジトリ作成&lt;ul&gt;
+&lt;li&gt;Githubに公開用のリポジトリを作成する&lt;/li&gt;
+&lt;li&gt;すでにGithubにアカウントがあることが前提&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Pelicanのインストール&lt;ul&gt;
+&lt;li&gt;インストールと初期設定をする&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;記事の作成と公開&lt;ul&gt;
+&lt;li&gt;markdownで記事を作成し、htmlを作成してGithubPagesで公開するまでの手順&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;（おまけ）ソース管理&lt;ul&gt;
+&lt;li&gt;markdownで書いたソースを管理するための手順&lt;/li&gt;
+&lt;li&gt;外出用のマシンと家でコードを書いて実験するためのマシンとそれぞれ使いたいので、ソースをgithubで管理する&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;2 GithubPages用のリポジトリ作成&lt;/h1&gt;
+&lt;p&gt;まず、公開用のリポジトリを作成する。
+このリポジトリのmasterブランチにhtmlを置いておくことで、Webサイトを公開することができる。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Githubの自分のアカウントで、&lt;code&gt;{username}.github.io&lt;/code&gt;というリポジトリを作成&lt;ul&gt;
+&lt;li&gt;私の場合は&lt;code&gt;tok41.github.io&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;このリポジトリを作ることで、グローバルに以下のURLでアクセスできる&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;http://{username}.github.io&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;3 Pelicanのインストール&lt;/h1&gt;
+&lt;h2&gt;3.1 Pelican用の仮想環境を用意&lt;/h2&gt;
+&lt;p&gt;Pelicanはブログにしか使わないので、
+他のPython環境と分けるために、virtualenvで環境を分離する。
+気にしない人はこの手順を飛ばしても良い。&lt;/p&gt;
+&lt;p&gt;なお、pyenv, virtualenvが導入されていることを前提にします。
+（無い場合には飛ばしても良いし、ググれば手順が公開されてます）&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;python2.7をpyenvで別に用意する&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ pyenv install -l  &lt;span class="c1"&gt;# &amp;lt;- pyenvでインストールできるPythonを探す&lt;/span&gt;
+$ pyenv install &lt;span class="m"&gt;2&lt;/span&gt;.7.11 &lt;span class="c1"&gt;# &amp;lt;- 導入時点で2.7.11が最新だった&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;~/{適当なディレクトリ}/Pelican-Blog を作成&lt;ul&gt;
+&lt;li&gt;ブログのソースを置いたりするためのディレクトリ&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;pyenvで仮想環境を作成&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cd ~/{適当なディレクトリ}/Pelican-Blog
+$ pyenv virtualenv 2.7.11 PelicanBlog
+        # PelicanBlogという名前の環境を作る
+$ pyenv local PelicanBlog
+        # Pelican-Blogに来たらPelicanBlog環境になるように設定
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;3.2 Pelicanのインストール&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;pipでインストール&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ pip install pelican
+$ pip install Markdown
+      &lt;span class="c1"&gt;# Markdownで記事を書くために&lt;/span&gt;
+$ pip install ghp-import
+      &lt;span class="c1"&gt;# Github Pagesへの公開操作をやってくれるパッケージ&lt;/span&gt;
+      &lt;span class="c1"&gt;# 公開操作→masterブランチに各種htmlファイルなどをpush&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;3.3 pelican-quickstartで雛形の作成&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;対話形式でwebぺーじの初期設定をするためのツール&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ pelican-quickstart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;基本はdefaultで答えていけばよいかと&lt;/li&gt;
+&lt;li&gt;この設定が済めば以下のようなファイルが自動で生成されているはず&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Pelican&lt;span class="o"&gt;-&lt;/span&gt;Blog
+  &lt;span class="o"&gt;|-&lt;/span&gt; content&lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; このディレクトリ以下に記事を書いていく
+  &lt;span class="o"&gt;|-&lt;/span&gt; output&lt;span class="o"&gt;/&lt;/span&gt;  &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; 生成されたhtmlなどが配置される
+  &lt;span class="o"&gt;|-&lt;/span&gt; develop_server.sh
+  &lt;span class="o"&gt;|-&lt;/span&gt; fabfile.py
+  &lt;span class="o"&gt;|-&lt;/span&gt; Makefile
+  &lt;span class="o"&gt;|-&lt;/span&gt; pelicanconf.py  &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt;各種設定を書く
+  &lt;span class="o"&gt;|-&lt;/span&gt; publishconf.py
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;4 記事の作成と公開&lt;/h1&gt;
+&lt;h2&gt;4.1 記事の作成&lt;/h2&gt;
+&lt;p&gt;記事はcontentディレクトリ以下に書く。
+このとき、content以下にディレクトリを作成すると、
+そのディレクトリがブログカテゴリと自動で認識される。
+記事のソース中でカテゴリを指定することもできるが、
+ディレクトリ分けたほうが管理の上でも良いでしょう。&lt;/p&gt;
+&lt;p&gt;また、pagesというディレクトリは、特殊なカテゴリで、
+aboutmeなどのページを作成する目的で使われるらしい。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;content/
+  |- pages/
+       |- Aboutme.mdなど
+  |- Category1/
+  |- Category2/
+  |- ...
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;4.2 実際に記事を書く&lt;/h2&gt;
+&lt;p&gt;contentディレクトリ以下に記事を書く。
+先の手順でMarkdownパッケージをインストールしているため、
+拡張子&lt;code&gt;.md&lt;/code&gt;で作成する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ emacs first-post.md
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;サンプルのソース。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Title: 初めまして
+Date: 2017-06-25 18:13
+Modified: 2017-06-25 18:13
+Category: Pelican
+Tags: pelican, python
+Slug: firstr-post
+Authors: tok41
+Summary: ブログ始めました
+
+# 最初の投稿
+
+ブログ作ってみたテスト。
+Pelicanを使ってコンテンツを生成する。
+
+- Markdownで書ける
+- テスト
+\```python            (実際はバックスラッシュはいらない)
+print &amp;#39;Hello World!&amp;#39;
+\```                  (実際はバックスラッシュはいらない)
+
+以上。
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;ブログソースの先頭には、記事の情報を記載する&lt;ul&gt;
+&lt;li&gt;key:value という形式&lt;/li&gt;
+&lt;li&gt;keyの最新情報を確認するために、&lt;a href="http://docs.getpelican.com/en/stable/content.html"&gt;公式ページ&lt;/a&gt;を参考にする&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;4.3 記事のコンパイル&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;記事を作成したらコンパイルする&lt;ul&gt;
+&lt;li&gt;pelican-quickstartでMakefileができているはずなので、以下のコマンドを使う&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ make html
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;ローカルに記事のチェックをするためにwebサーバを立てる&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ make serve
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;localhostの8000ポートにアクセスして記事をチェックする&lt;ul&gt;
+&lt;li&gt;http://localhost:8000&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;4.4 記事の公開&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;チェックが済んだらいよいよ記事を公開する&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;make&lt;/span&gt; &lt;span class="n"&gt;publish&lt;/span&gt;  &lt;span class="c1"&gt;# &amp;lt;-公開用にｈｔｍｌを作成&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;init&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;ghp&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;output&lt;/span&gt;  &lt;span class="c1"&gt;# &amp;lt;-ghp-importで公開用のディレクトリ指定&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;push&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;tok41&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;tok41&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;io&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;gh&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;pages&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;master&lt;/span&gt;  &lt;span class="c1"&gt;# &amp;lt;- githubにpushする&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;実際にブラウザで確認すると、グローバルに公開されていることが確認できる&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;http://{username}.github.io&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;このブログでは&lt;a href="http://tok41.github.io"&gt;http://tok41.github.io&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;4.5 日々の公開手順&lt;/h2&gt;
+&lt;p&gt;日々の公開手順をまとめると以下のようになる。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;記事をcontent以下に作成し、内容を確認する&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ emacs &lt;span class="o"&gt;{&lt;/span&gt;article_name&lt;span class="o"&gt;}&lt;/span&gt;.md
+$ make html
+$ make serve
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;公開用にコンパイル&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ make publish
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;gh-pagesで公開操作&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;ghp&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;output&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;push&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;username&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;username&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;io&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;gh&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;pages&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;master&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;5 （おまけ）ソース管理&lt;/h1&gt;
+&lt;p&gt;gh-pagesでは、生成したhtmlをgithubにpushするので、ソース自体はローカルに保存されたままである。
+しかし、ブログのソースもgithubで管理して、複数のマシンで記事を作成したいと思っている。
+なぜなら、外出用のマシンと、コードを書いて実験するためのマシンが別で、実験用マシンでも記事を書きたいので。&lt;/p&gt;
+&lt;h2&gt;5.1 構成&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;構成としては、リポジトリを共通として、ブランチを分けることで対処することにした。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;tok41.github.io
+  &lt;span class="o"&gt;|-&lt;/span&gt; master   &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; 公開用のブランチ
+  &lt;span class="o"&gt;|-&lt;/span&gt; &lt;span class="kn"&gt;source&lt;/span&gt;   &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; ソース管理用のブランチ
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;おわりに&lt;/h1&gt;
+&lt;p&gt;以上、簡単にGithubPages+Pelicanでブログを作成する手順を紹介しました。&lt;/p&gt;
+&lt;p&gt;まだまだわからないことが多いので、少しずつアップデートしていこうと思います。&lt;/p&gt;
+&lt;h2&gt;Future-Work&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;ソース管理の詳細を追記&lt;/li&gt;
+&lt;li&gt;テーマの適用について追記する&lt;/li&gt;
+&lt;li&gt;画像の貼り付けについて追記する&lt;/li&gt;
+&lt;li&gt;コメント欄の設定について追記する&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;参考サイト&lt;/h1&gt;
+&lt;p&gt;参考にさせていただいたサイト&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://docs.getpelican.com/en/stable/"&gt;Pelican&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.sotm.jp/2014/01/04/Pelican-Markdown-GithubPages-install-guide/"&gt;Pelican + Markdown + GitHub Pagesで管理するブログの作り方&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://daikishimada.github.io/pelican-start.html"&gt;PELICAN + GITHUB PAGES でブログを作った話&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://qiita.com/ogrew/items/ecef0a4700d5bd4d875d"&gt;Pythonの静的サイトジェネレータ"Pelican"でお手軽にブログをはじめる手順&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="python"></category><category term="pelican"></category></entry><entry><title>jupyterでHaskellを使うための第一歩</title><link href="http://tok41.github.io/haskell-jupyter.html" rel="alternate"></link><published>2017-07-09T22:50:00+09:00</published><updated>2017-07-09T22:50:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-07-09:/haskell-jupyter.html</id><summary type="html">&lt;p&gt;Haskellをjupyterで使う手順の解説をしてみる。&lt;/p&gt;</summary><content type="html">&lt;p&gt;Haskellという言語がすごく良いらしい。&lt;/p&gt;
+&lt;p&gt;ということで、まずはHaskellの実行環境を構築することにした。
+普段は主に、Python+Jupyterでデータ分析系のプログラムを書いて生活しているので、JupyterにHaskellカーネルを導入することにした。&lt;/p&gt;
+&lt;p&gt;自分のための備忘録と、初めてHaskell触るという人の参考になれば。
+超初心者向けなので新しい知見は特に無いです。&lt;/p&gt;
+&lt;h1&gt;はじめに&lt;/h1&gt;
+&lt;p&gt;Haskellをやってみるにあたって、たぶん最も有名であろう
+「&lt;a href="https://www.amazon.co.jp/%E3%81%99%E3%81%94%E3%81%84Haskell%E3%81%9F%E3%81%AE%E3%81%97%E3%81%8F%E5%AD%A6%E3%81%BC%E3%81%86-Miran-Lipova%C4%8Da/dp/4274068854"&gt;すごいHaskell&lt;/a&gt;」を読んでいる(以下、「すごいH本」と略記する)。
+本書では、Haskellの実行環境としてGHC（The Glasgow Haskell Compiler）をインストールし、インタラクティブなHaskell実行環境であるGHCiを使っている。&lt;/p&gt;
+&lt;p&gt;しかし、GHCiでは変数の定義にlet句をつけなきゃいけないなどちょっと面倒だったので、jupyterにHaskellカーネルを導入して学習することにした。&lt;/p&gt;
+&lt;p&gt;本記事では、はじめに私の実行環境を説明する。
+そして、GHCをインストールしてGHCiをまずは使ってみる手順を紹介する。
+次に、jupyterのHaskellカーネルであるiHaskellのインストール手順を紹介し、jupyter上での実際のHaskellプログラミングについて簡単に解説する。&lt;/p&gt;
+&lt;p&gt;なお、iHaskellだけを使いたい場合、最初のGHCのインストールはたぶん不要。
+また、Dockerを利用するとiHaskellの導入はすごく簡単らしいし日本語の解説も多いので、
+Dockerを使ったほうが良いかもしれない（この記事ではDockerについては一切触れない）。&lt;/p&gt;
+&lt;h1&gt;1 環境&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;OS : Ubuntu 16.04.2 LTS&lt;/li&gt;
+&lt;li&gt;CPU : Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz&lt;/li&gt;
+&lt;li&gt;RAM : 8GB&lt;/li&gt;
+&lt;li&gt;jupyter : 4.3.0 (Anacondaで導入済み)&lt;ul&gt;
+&lt;li&gt;jupyterの拡張機能はすでにインストール済み&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;2 GHCのインストール&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;まずは&lt;a href="https://www.haskell.org/platform/#linux-ubuntu"&gt;公式ページ&lt;/a&gt;を参照。&lt;/li&gt;
+&lt;li&gt;「Haskell ubuntu」あたりをクエリとしてググった&lt;/li&gt;
+&lt;li&gt;上記ページから「Choose your distribution」で「Ubuntu」を選択&lt;/li&gt;
+&lt;li&gt;apt-getでインストールできるぜと書いてあるのでそのまま素直に実行&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt-get install haskell-platform
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;2.1 GHCiを触ってみる&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;インストールしたんだから触ってみよう&lt;/li&gt;
+&lt;li&gt;ghciコマンドを実行するだけ&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ghci
+GHCi, version &lt;span class="m"&gt;7&lt;/span&gt;.10.3: http://www.haskell.org/ghc/  :? &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="nb"&gt;help&lt;/span&gt;
+Prelude&amp;gt; 
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;インタラクティブなHaskell実行環境が立ち上がった&lt;ul&gt;
+&lt;li&gt;プロンプトが出ているので、ここにコードを書いていけば良い&lt;/li&gt;
+&lt;li&gt;実際にはすごいH本にある例をいくつか書いてみたが、ここでは割愛&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;終了するには":q" or ":quit"を入力&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Prelude&amp;gt; :q
+Leaving GHCi.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;とりあえず動いた&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;2.2 GHCのバージョン&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;apt-getでインストールすると、7.10.3がインストールされる&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ghc --version
+The Glorious Glasgow Haskell Compilation System, version &lt;span class="m"&gt;7&lt;/span&gt;.10.3
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;しかし、本記事作成時点(2017/07/09)ではすでに8系がリリースされている&lt;ul&gt;
+&lt;li&gt;これがすぐ後で問題になる&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;3 iHaskellのインストール&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;jupyterにHaskellカーネルを導入するために、IHaskellをインストールする。&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/gibiansky/IHaskell"&gt;公式ページ&lt;/a&gt;を確認&lt;/li&gt;
+&lt;li&gt;UbuntuへのインストールなのでLinuxの項目を確認すると、(1)apt-getでpythonなどのライブラリをいくつか導入し、(2)jupyter関連のパッケージをインストール、(3)stackをインストール、(4)IHaskellのインストール。という手順らしい。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;3.1 諸々のライブラリのインストール&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;上記のページの指示にそのまま従い、以下のコマンドを実行&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt-get install -y python3-pip git libtinfo-dev libzmq3-dev libcairo2-dev libpango1.0-dev libmagic-dev libblas-dev liblapack-dev
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;3.2 jupyter関連のパッケージをインストール&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;次の指示では、requirements.txtの中身を入れろとある&lt;/li&gt;
+&lt;li&gt;requirementsを確認すると、jupyterと関連のパッケージを入れることになっているが、全て既存環境にインストール済みなのでここでは無視&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;3.3 stackのインストール&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;stackというのは、Haskellパッケージの管理をするためのツールらしい&lt;/li&gt;
+&lt;li&gt;ビルドとかインストールとか、別バージョンのHaskellの管理などもできるらしいが、詳しいことはまだよくわかっていないので、調べたら別に記事を書こう。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ curl -sSL https://get.haskellstack.org/ &lt;span class="p"&gt;|&lt;/span&gt; sh
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;3.4 IHaskellのインストール&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;IHaskellのgitリポジトリをclone&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone https://github.com/gibiansky/IHaskell
+$ &lt;span class="nb"&gt;cd&lt;/span&gt; IHaskell
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;stackでアプリのインストール&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ stack install gtk2hs-buildtools
+
+No compiler found, expected minor version match with ghc-8.0.2 &lt;span class="o"&gt;(&lt;/span&gt;x86_64&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;based on resolver setting in /home/yoichi/work/training/haskell/IHaskell/stack.yaml&lt;span class="o"&gt;)&lt;/span&gt;.
+To install the correct GHC into /home/yoichi/.stack/programs/x86_64-linux/, try running &lt;span class="s2"&gt;&amp;quot;stack setup&amp;quot;&lt;/span&gt; or use the &lt;span class="s2"&gt;&amp;quot;--install-ghc&amp;quot;&lt;/span&gt; flag.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;GHCのバージョンが合ってないと怒られた&lt;/li&gt;
+&lt;li&gt;stackを使ってビルドしたりインストールするには、stack.yamlにコンパイラ（GHC）のバージョンを書いたり、関連パッケージを書いたりするらしいのだが、「resolver: lts-8.22」と書かれている&lt;/li&gt;
+&lt;li&gt;先のGHCのインストールではapt-getでインストールすると7系が入ったので、当然8系は入っていない&lt;/li&gt;
+&lt;li&gt;でもstackなら問題なし&lt;/li&gt;
+&lt;li&gt;stack.yamlの設定で不足があれば、&lt;code&gt;stack setup&lt;/code&gt;コマンドで自動で環境を構築できる&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ stack setup
+
+Preparing to install GHC to an isolated location.
+This will not interfere with any system-level installation.
+Downloaded ghc-8.0.2.                                      
+Installed GHC.
+stack will use a sandboxed GHC it installed
+For more information on paths, see &lt;span class="s1"&gt;&amp;#39;stack path&amp;#39;&lt;/span&gt; and &lt;span class="s1"&gt;&amp;#39;stack exec env&amp;#39;&lt;/span&gt;
+To use this GHC and packages outside of a project, consider using:
+stack ghc, stack ghci, stack runghc, or stack &lt;span class="nb"&gt;exec&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;再度install作業開始&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ stack install gtk2hs-buildtools
+$ stack install --fast
+  &lt;span class="c1"&gt;# 結構時間かかる&lt;/span&gt;
+$ stack &lt;span class="nb"&gt;exec&lt;/span&gt; ihaskell -- install --stack
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;できた！&lt;/p&gt;
+&lt;h1&gt;4 jupyter+Haskell&lt;/h1&gt;
+&lt;h2&gt;4.1 Haskellカーネルのjupyter notebookを作成&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;stackを使ってjupyterを立ち上げる&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ stack &lt;span class="nb"&gt;exec&lt;/span&gt; jupyter -- notebook
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;いつものjupyterが立ち上がるので、新規ノートブック作成時にカーネルをpythonではなくHaskellを選択&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="jupyter-haskell-kernel" src="/images/jupyter-haskell-kernel.png"&gt;&lt;/p&gt;
+&lt;h2&gt;4.2 使ってみる&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;GHCiに記入するのと同じ要領でセルに関数を記入&lt;/li&gt;
+&lt;li&gt;セル毎にコンパイルしてメモリ空間に展開するようなので、すごいH本にあるように、let式で名前を定義したりしないで良いみたい（？）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="jupyter-first-sample" src="/images/jupyter-haskell-notebook-firstsample.png"&gt;&lt;/p&gt;
+&lt;h1&gt;終わりに&lt;/h1&gt;
+&lt;p&gt;ここまでで、jupyter上でHaskellコードを書く環境の構築をやってみた。
+とはいっても、ほぼ公式の指示に従っただけなので、新しい知見は特に無い。&lt;/p&gt;
+&lt;p&gt;IHaskell、ざっと使ってみたところ、
+エディタを立ち上げて別ファイルに関数を書いてそれをロードしてといった手間が無いので、
+ちょっとだけ効率的かなと感じている。
+あとは、すごいH本を読みながら使ってみて何かアップデートがあれば追記していく。&lt;/p&gt;
+&lt;h2&gt;今後の課題&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;stackについて調べて何をやっているのか解説を追記&lt;/li&gt;
+&lt;li&gt;IHaskellの利用例が貧弱なのでもう少し何か書いた例を追記&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://www.haskell.org/platform/#linux-ubuntu"&gt;Haskellプラットフォーム&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/gibiansky/IHaskell"&gt;IHaskell(GitHub)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="programming"></category><category term="Haskell"></category><category term="jupyter"></category></entry><entry><title>ブログのテスト</title><link href="http://tok41.github.io/blog-test.html" rel="alternate"></link><published>2017-06-25T21:20:00+09:00</published><updated>2017-06-25T21:20:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-06-25:/blog-test.html</id><summary type="html">&lt;p&gt;Pythonに関する記事のtest&lt;/p&gt;</summary><content type="html">&lt;h1&gt;ブログテスト&lt;/h1&gt;
 &lt;p&gt;この記事はブログ投稿のテストをしています。&lt;/p&gt;
 &lt;p&gt;Pelicanというサイトジェネレータを使っていて、
 設定を確認するために作っています。&lt;/p&gt;
