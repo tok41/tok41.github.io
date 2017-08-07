@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="tok41" />
+        <meta name="copyright" content="tok41" />
+
+        <meta name="twitter:creator" content="@yoichi_t">
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="programming, python, Python, " />
+
+<meta property="og:title" content="PythonでWebカメラを使ってみる "/>
+<meta property="og:url" content="http://tok41.github.io/python-WebCamera.html" />
+<meta property="og:description" content="PythonでWebカメラをつかってみる" />
+<meta property="og:site_name" content="41 LOG" />
+<meta property="og:article:author" content="tok41" />
+<meta property="og:article:published_time" content="2017-08-06T22:00:00+09:00" />
+<meta name="twitter:title" content="PythonでWebカメラを使ってみる ">
+<meta name="twitter:description" content="PythonでWebカメラをつかってみる">
+
+        <title>PythonでWebカメラを使ってみる  · 41 LOG
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://tok41.github.io/theme/css/custom.css" media="screen">
+        <link href="http://tok41.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="41 LOG - Full Atom Feed" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://tok41.github.io/"><span class=site-name>41 LOG</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://tok41.github.io">Home</a></li>
+                            <li ><a href="http://tok41.github.io/pages/about-me.html">About Me</a></li>
+                            <li ><a href="http://tok41.github.io/categories.html">Categories</a></li>
+                            <li ><a href="http://tok41.github.io/tags.html">Tags</a></li>
+                            <li ><a href="http://tok41.github.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://tok41.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://tok41.github.io/python-WebCamera.html"> PythonでWebカメラを使ってみる  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <p>Python＋OpenCVですごく簡単にWebカメラを扱うことができる。</p>
+<p>カメラ映像を取り込んで、画像処理をテストしていくために、
+Webカメラ操作の超基本をまとめておく。</p>
+<h1>はじめに</h1>
+<p>画像処理で遊ぶために、Webカメラの画像をキャプチャして簡単なフィルタを実装してみる。</p>
+<p>はじめに、OpenCVでカメラ画像をキャプチャするための基本を述べ、
+次いで今回実装したフィルタを説明する。</p>
+<p>OpenCVはインストール済みであることを前提にするが、
+インストールしてあると、この記事に書いてあるようにトラブるかもしれない。</p>
+<p>今回実装したコードは
+<a href="https://github.com/tok41/ObjectTracker/tree/master/videoCapture">ここ</a>
+に上がっているので、
+誰かの参考になれば幸いです。</p>
+<h1>環境</h1>
+<ul>
+<li>OS : Ubuntu 16.04.2 LTS</li>
+<li>CPU : Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz</li>
+<li>RAM : 8GB</li>
+<li>Python : Python 2.7.13 :: Anaconda custom (64-bit)</li>
+<li>webカメラ : Microsoft LifeCam Studio for Business</li>
+</ul>
+<h2>Webカメラ</h2>
+<p>WebカメラはUVC(USB Video Class)タイプのWebカメラなら何でも良い。
+私はMicrosoft LifeCam StudioというのをAmazonで入手。
+HD映像が撮れるというので購入。</p>
+<p>ちなみに、UVCタイプというのは良くわからなかったので、
+<a href="http://www.ideasonboard.org/uvc/">ここ</a>で対応の
+製品を探した。
+初めて購入するなら、上記のサイトで探してWebカメラを手に入れるのが良いんじゃないかな。</p>
+<h2>OpenCV</h2>
+<p>画像処理用のライブラリが超充実しているライブラリである「OpenCV」を使う。
+予め、以下のコマンドでcondaでインストールしていた。</p>
+<div class="highlight"><pre><span></span>$ conda install -c https://conda.binstar.org/jjhelmus opencv
+</pre></div>
+
+
+<p>ソースからコンパイルするとmakeにむちゃくちゃ時間がかかる。
+依存関係のエラーも出る場合があるし。
+でも、Anacondaを導入していれば上記のコマンド一発。
+しかも、インストールもすぐ終わる。</p>
+<h1>Webカメラの動作確認</h1>
+<p>Webカメラを繋いで、まずは既存のアプリケーションでOSがカメラを認識してくれるのか、
+カメラが正しく動作するのかを確認。
+cheeseというアプリケーションを使う。
+私の環境には最初から入っていたが、apt-getで入手もできる。</p>
+<div class="highlight"><pre><span></span>$ cheese
+</pre></div>
+
+
+<p>アプリケーションウィンドウが立ち上がって映像が表示されればOK。
+いくつかのフィルタをかけたり、録画ができる。</p>
+<h1>Webカメラ画像のキャプチャ</h1>
+<h2>import</h2>
+<p>opencvをimportする必要がある。
+他にもnumpyなどimportしておくと、キャプチャ画像を使って遊べる。</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
+</pre></div>
+
+
+<h2>キャプチャ</h2>
+<p>ビデオキャプチャ用のインスタンスを生成する。
+カメラがopenされていなければ、IO Errorを上げて終了。</p>
+<div class="highlight"><pre><span></span><span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">cap</span><span class="o">.</span><span class="n">isOpened</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+   <span class="k">raise</span><span class="p">(</span><span class="s2">&quot;IO Error&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>↑で作成したインスタンスを使って
+1フレームの画像をキャプチャしてframeに格納する。
+retは画像取得の可否を示すフラグ。</p>
+<div class="highlight"><pre><span></span><span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;camera capture&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>
+</pre></div>
+
+
+<p>最後にキャプチャ用のインスタンスを開放する。</p>
+<div class="highlight"><pre><span></span><span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+
+
+<h2>エラーが！？</h2>
+<p>上記のコードでキャプチャできるはず。
+なのに、以下のエラーが。</p>
+<div class="highlight"><pre><span></span>​​OpenCV Error: Unspecified error (The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Carbon support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script) in cvShowImage, file /opt/conda/conda-bld/opencv_1491943414359/work/opencv-3.1.0/modules/highgui/src/window.cpp, line 545
+​​Traceback (most recent call last):
+​​  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;
+​​cv2.error: /opt/conda/conda-bld/opencv_1491943414359/work/opencv-3.1.0/modules/highgui/src/window.cpp:545: error: (-2) The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Carbon support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script in function cvShowImage
+</pre></div>
+
+
+<p>とりあえずググったところ、エラーメッセージにあるように、
+OpenCVの再インストールが必要らしい。
+（<a href="http://qiita.com/SE96UoC5AfUt7uY/items/ea5ad55736e3e9470b6a">参考</a>）
+ターミナルで以下のコマンドを実行。</p>
+<div class="highlight"><pre><span></span>$ conda install -c menpo opencv
+</pre></div>
+
+
+<h2>これでキャプチャはできた</h2>
+<p>しかし、まだエラー（警告？）がでている。</p>
+<div class="highlight"><pre><span></span>​​HIGHGUI ERROR: V4L/V4L2: VIDIOC_S_CROP
+</pre></div>
+
+
+<p>ググッてみるとv4lというライブラリが必要らしい。
+ならばとapt-getしても最新版が入っていると怒られる。</p>
+<p>影響含め今後の課題として、先に進むことにしよう。</p>
+<p><a href="https://github.com/tok41/ObjectTracker/blob/master/videoCapture/simpleVideoCapture.py">ここまでのコード</a>をgithubにアップしているので、
+必要な方は参考にしていただけたらと。</p>
+<h1>カラーフィルタを作ってみる</h1>
+<h2>やること</h2>
+<p>カメラからキャプチャした映像の中で、特定の色以外をマスクするフィルタを作る。
+そして、リアルタイムでフィルタ処理した映像を表示する。</p>
+<p>↓こんな画像を</p>
+<p><img alt="base_image" src="/images/raw_image.png"></p>
+<p>↓こんな感じにする。元画像の赤成分のピクセルだけが残る。</p>
+<p><img alt="filtered_image" src="/images/filtered_image.png"></p>
+<p>以下で説明するフィルタを実装して、webカメラ画像にフィルタを当てるコードを
+githubにコードをアップしているので、
+必要な方は参考にしていただけたらと。
+（<a href="https://github.com/tok41/ObjectTracker/blob/master/videoCapture/simpleColorTracker.py">ここ</a>）</p>
+<h2>色の認識</h2>
+<p><code>cap.read()</code>でキャプチャした画像は[hight, width, color-channel]の
+3次元配列になっている。
+OpenCVでキャプチャした画像は、color-channelがBGRの3チャネル分なので、
+color-channelを使えば、色の認識はできそうに思える。</p>
+<p>しかし、光の当たり方など考慮した色の範囲を定義するのは難しい。
+<code>[B,G,R]=[0, 0, 255]</code>なら赤として良いであろうが、
+各チャネルの値の範囲をどこまで許すかは一概に決めるのはちょっと難しい
+（適当に決めればできるだろうけど）。</p>
+<p>そこで、
+<a href="https://ja.wikipedia.org/wiki/HSV%E8%89%B2%E7%A9%BA%E9%96%93">HSV表現（Wikipedia）</a>を
+使って、色を定義する。</p>
+<h3>HSV表現とは</h3>
+<p>すごーくざっくり言うと、
+色をRGBじゃなくて、
+色相(Hue)、彩度(Saturation)、明度(Brightness)の
+三つの成分で定義する。</p>
+<p>色相が0度から360度の範囲で色を定義する。
+連続値で色を表現できるので、大きさ（範囲）を適当に決めれば
+ちょっと色合いが違っていても赤なら赤と認識できる。</p>
+<p>HSVの色相では、赤は0度、青は120度、緑は240度になる。</p>
+<h3>HSV表現の計算</h3>
+<p>OpenCVで取得したBGR画像のHSV表現への変換はOpenCVで一発。</p>
+<div class="highlight"><pre><span></span><span class="n">frame_hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2HSV_FULL</span><span class="p">)</span>
+<span class="n">frame_h</span> <span class="o">=</span> <span class="n">frame_hsv</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># 色相</span>
+<span class="n">frame_s</span> <span class="o">=</span> <span class="n">frame_hsv</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># 彩度</span>
+<span class="n">frame_v</span> <span class="o">=</span> <span class="n">frame_hsv</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># 明度</span>
+</pre></div>
+
+
+<h2>フィルタの作成</h2>
+<p>ここで作成するフィルタは、指定範囲の色以外を真っ黒に塗りつぶす。
+指定範囲の色部分だけをそのまま原画像を表示するというもの。</p>
+<p>カラーフィルタ作成の手順は以下の通り</p>
+<ul>
+<li>中央の色を指定（RGBで指定）</li>
+<li>HSV表現の範囲を計算</li>
+<li>キャプチャ画像の中で範囲に収まるピクセルを定義するROI（RegionOfInterest）を計算</li>
+<li>キャプチャ画像にROIをかける</li>
+</ul>
+<h3>中央の色を指定（RGBで指定）</h3>
+<p>RGBの値を3次元のタプルで指定する。</p>
+<div class="highlight"><pre><span></span><span class="n">color_map</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3>HSV表現の範囲を計算</h3>
+<p>Wikipediaのページを参考に、以下の関数getHueRangeを作成した。
+getHueRangeは、color_mapにRGBで指定する中央の色を入力し、
+そのcolor_mapから色相でh_widthの範囲までの色相の範囲を計算する。</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">getHueRange</span><span class="p">(</span><span class="n">color_map</span><span class="p">,</span> <span class="n">h_width</span> <span class="o">=</span> <span class="mi">30</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">      color_map : tuple(R,G,B), 0.0~1.0</span>
+<span class="sd">      h_width : Hの範囲(degree)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      min_range_h : hの範囲の最小値</span>
+<span class="sd">      max_range_h : hの範囲の最大値</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># HSV表現の色相を計算する</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">color_map</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># min=R</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="mf">60.0</span> <span class="o">*</span> <span class="p">(</span> <span class="p">(</span><span class="n">color_map</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">color_map</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                         <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">color_map</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">color_map</span><span class="p">))</span> <span class="p">)</span> <span class="o">+</span> <span class="mf">180.0</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">color_map</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># min=G</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="mf">60.0</span> <span class="o">*</span> <span class="p">(</span> <span class="p">(</span><span class="n">color_map</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">color_map</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                         <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">color_map</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">color_map</span><span class="p">))</span> <span class="p">)</span> <span class="o">+</span> <span class="mf">300.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># min=B</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="mf">60.0</span> <span class="o">*</span> <span class="p">(</span> <span class="p">(</span><span class="n">color_map</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">color_map</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> 
+                    <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">color_map</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">color_map</span><span class="p">))</span> <span class="p">)</span> <span class="o">+</span> <span class="mf">60.0</span>
+    <span class="c1"># 0~255の整数に収める</span>
+    <span class="n">min_range_h</span> <span class="o">=</span> <span class="p">((</span><span class="n">h</span><span class="o">-</span><span class="n">h_width</span><span class="p">))</span> <span class="o">*</span> <span class="mf">255.0</span><span class="o">/</span><span class="mf">360.0</span>
+    <span class="n">max_range_h</span> <span class="o">=</span> <span class="p">((</span><span class="n">h</span><span class="o">+</span><span class="n">h_width</span><span class="p">))</span> <span class="o">*</span> <span class="mf">255.0</span><span class="o">/</span><span class="mf">360.0</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">min_range_h</span><span class="p">,</span> <span class="n">max_range_h</span><span class="p">)</span>
+</pre></div>
+
+
+<p>定義に従ってRGBから色相を計算する。
+色相の範囲は単純に幅（h_width）の足し引きしたものになる。
+そして、OpenCVでの色相の範囲が0~255なので値を調整する。</p>
+<p>彩度や明度も定義が必要だが、ここでは指定しない。</p>
+<h3>ROI（RegionOfInterest）を計算</h3>
+<p>ここで作るROIは、キャプチャ画像の各ピクセルが、
+上記で計算したHSV表現の色の範囲に収まっているのかを判定し、
+範囲に収まっていれば1とし、それ以外を0とするもの。</p>
+<p>gituhubに<a href="https://github.com/tok41/ObjectTracker/blob/master/videoCapture/simpleColorTracker.py">アップしているコード</a>では、
+getColorROIという関数に実装している。</p>
+<p>まずは、キャプチャ画像をHSV表現に変換する。</p>
+<div class="highlight"><pre><span></span><span class="c1"># BGRイメージをHSV表現に変換する</span>
+<span class="n">frame_hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2HSV_FULL</span><span class="p">)</span>
+<span class="n">frame_h</span> <span class="o">=</span> <span class="n">frame_hsv</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># 色相</span>
+<span class="n">frame_s</span> <span class="o">=</span> <span class="n">frame_hsv</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># 彩度</span>
+<span class="n">frame_v</span> <span class="o">=</span> <span class="n">frame_hsv</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># 明度</span>
+</pre></div>
+
+
+<p>次に、キャプチャ画像と同じサイズの0ベクトルを作成。
+opencvでのキャプチャ画像がuint8なので、
+型を揃えておくと後で計算が楽。</p>
+<div class="highlight"><pre><span></span><span class="n">roi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">frame_h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+</pre></div>
+
+
+<p>上記の手順で計算したHSV表現の範囲を<code>h_range</code>としておく。
+ここまで彩度は定義して来なかったが、128以上としておく。
+これらを使って、画像の各ピクセルが範囲内であれば1となるように
+roiを設定する。</p>
+<div class="highlight"><pre><span></span><span class="n">roi</span><span class="p">[(</span> <span class="p">((</span><span class="n">frame_h</span><span class="o">&gt;</span><span class="n">min_range_h</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">frame_h</span><span class="o">&lt;=</span><span class="n">max_range_h</span><span class="p">))</span>
+      <span class="o">|</span> <span class="p">((</span><span class="n">frame_h</span><span class="o">+</span><span class="mi">255</span><span class="o">&gt;</span><span class="n">min_range_h</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">frame_h</span><span class="o">+</span><span class="mi">255</span><span class="o">&lt;=</span><span class="n">max_range_h</span><span class="p">))</span>
+      <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">frame_s</span><span class="o">&gt;=</span><span class="n">saturation</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>ここで、色相の範囲は0~255だが、getHueRangeで計算した色相の範囲は
+単純に中央の値から範囲を±しているものなので、
+範囲を超えることがある。
+そのため、範囲を超えることを想定して、orで追加で範囲を指定。</p>
+<h3>キャプチャ画像にROIをかける</h3>
+<p>キャプチャ画像にフィルタをかける。
+単純に、3チャネル分の2次元配列に、ROIの値を掛ければ良い。</p>
+<div class="highlight"><pre><span></span><span class="c1"># ROIを3チャネルに拡張</span>
+<span class="n">roi3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+     <span class="p">(</span><span class="n">roi</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">roi</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">roi</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+     <span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">frame_masked</span> <span class="o">=</span> <span class="n">frame</span> <span class="o">*</span> <span class="n">roi3</span>
+
+<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;ColorTracker&#39;</span><span class="p">,</span> <span class="n">frame_masked</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>全体のコード</h2>
+<p><a href="https://github.com/tok41/ObjectTracker/blob/master/videoCapture/simpleColorTracker.py">github</a>にアップしています。</p>
+<p>上記コードでは最初は原画像を表示しておき、
+キー入力によって表示するカラーを指定する。</p>
+<ul>
+<li>r：赤だけを表示するフィルタを設定</li>
+<li>g：緑だけを表示するフィルタを設定</li>
+<li>b：青だけを表示するフィルタを設定</li>
+<li>p：原画像を表示</li>
+<li>q：終了</li>
+</ul>
+<h1>終わりに</h1>
+<p>OpenCVを使ってPythonでWebカメラの画像をキャプチャする手順を紹介した。
+また、画像処理の簡単な例として、カラーフィルタを作成した。</p>
+<h2>今後の課題</h2>
+<p>ここまでで画像処理をやっていくための基礎ができたので、
+今後は物体のトラッキングや認識などをやっていきたい</p>
+<p>また、以下の警告の対応を検討する。</p>
+<ul>
+<li>V4L問題</li>
+</ul>
+<h1>参考</h1>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2017-08-06T22:00:00+09:00"> 8月 6, 2017</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://tok41.github.io/categories.html#python-ref">Python</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://tok41.github.io/tags.html#programming-ref">programming
+                    <span>2</span>
+</a></li>
+                <li><a href="http://tok41.github.io/tags.html#python-ref">python
+                    <span>4</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="https://twitter.com/yoichi_t" title="My Twitter Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-twitter sidebar-social-links"></i></a>
+    <a href="https://github.com/tok41" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

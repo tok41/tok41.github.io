@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>41 LOG - Python</title><link href="http://tok41.github.io/" rel="alternate"></link><link href="http://tok41.github.io/feeds/python.atom.xml" rel="self"></link><id>http://tok41.github.io/</id><updated>2017-08-06T22:00:00+09:00</updated><entry><title>PythonでWebカメラを使ってみる</title><link href="http://tok41.github.io/python-WebCamera.html" rel="alternate"></link><published>2017-08-06T22:00:00+09:00</published><updated>2017-08-06T22:00:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-08-06:/python-WebCamera.html</id><summary type="html">&lt;p&gt;PythonでWebカメラをつかってみる&lt;/p&gt;</summary><content type="html">&lt;p&gt;Python＋OpenCVですごく簡単にWebカメラを扱うことができる。&lt;/p&gt;
+&lt;p&gt;カメラ映像を取り込んで、画像処理をテストしていくために、
+Webカメラ操作の超基本をまとめておく。&lt;/p&gt;
+&lt;h1&gt;はじめに&lt;/h1&gt;
+&lt;p&gt;画像処理で遊ぶために、Webカメラの画像をキャプチャして簡単なフィルタを実装してみる。&lt;/p&gt;
+&lt;p&gt;はじめに、OpenCVでカメラ画像をキャプチャするための基本を述べ、
+次いで今回実装したフィルタを説明する。&lt;/p&gt;
+&lt;p&gt;OpenCVはインストール済みであることを前提にするが、
+インストールしてあると、この記事に書いてあるようにトラブるかもしれない。&lt;/p&gt;
+&lt;p&gt;今回実装したコードは
+&lt;a href="https://github.com/tok41/ObjectTracker/tree/master/videoCapture"&gt;ここ&lt;/a&gt;
+に上がっているので、
+誰かの参考になれば幸いです。&lt;/p&gt;
+&lt;h1&gt;環境&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;OS : Ubuntu 16.04.2 LTS&lt;/li&gt;
+&lt;li&gt;CPU : Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz&lt;/li&gt;
+&lt;li&gt;RAM : 8GB&lt;/li&gt;
+&lt;li&gt;Python : Python 2.7.13 :: Anaconda custom (64-bit)&lt;/li&gt;
+&lt;li&gt;webカメラ : Microsoft LifeCam Studio for Business&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Webカメラ&lt;/h2&gt;
+&lt;p&gt;WebカメラはUVC(USB Video Class)タイプのWebカメラなら何でも良い。
+私はMicrosoft LifeCam StudioというのをAmazonで入手。
+HD映像が撮れるというので購入。&lt;/p&gt;
+&lt;p&gt;ちなみに、UVCタイプというのは良くわからなかったので、
+&lt;a href="http://www.ideasonboard.org/uvc/"&gt;ここ&lt;/a&gt;で対応の
+製品を探した。
+初めて購入するなら、上記のサイトで探してWebカメラを手に入れるのが良いんじゃないかな。&lt;/p&gt;
+&lt;h2&gt;OpenCV&lt;/h2&gt;
+&lt;p&gt;画像処理用のライブラリが超充実しているライブラリである「OpenCV」を使う。
+予め、以下のコマンドでcondaでインストールしていた。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ conda install -c https://conda.binstar.org/jjhelmus opencv
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ソースからコンパイルするとmakeにむちゃくちゃ時間がかかる。
+依存関係のエラーも出る場合があるし。
+でも、Anacondaを導入していれば上記のコマンド一発。
+しかも、インストールもすぐ終わる。&lt;/p&gt;
+&lt;h1&gt;Webカメラの動作確認&lt;/h1&gt;
+&lt;p&gt;Webカメラを繋いで、まずは既存のアプリケーションでOSがカメラを認識してくれるのか、
+カメラが正しく動作するのかを確認。
+cheeseというアプリケーションを使う。
+私の環境には最初から入っていたが、apt-getで入手もできる。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ cheese
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;アプリケーションウィンドウが立ち上がって映像が表示されればOK。
+いくつかのフィルタをかけたり、録画ができる。&lt;/p&gt;
+&lt;h1&gt;Webカメラ画像のキャプチャ&lt;/h1&gt;
+&lt;h2&gt;import&lt;/h2&gt;
+&lt;p&gt;opencvをimportする必要がある。
+他にもnumpyなどimportしておくと、キャプチャ画像を使って遊べる。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;cv2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;キャプチャ&lt;/h2&gt;
+&lt;p&gt;ビデオキャプチャ用のインスタンスを生成する。
+カメラがopenされていなければ、IO Errorを上げて終了。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;cap&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cv2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;VideoCapture&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;cap&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;isOpened&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+   &lt;span class="k"&gt;raise&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;IO Error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;↑で作成したインスタンスを使って
+1フレームの画像をキャプチャしてframeに格納する。
+retは画像取得の可否を示すフラグ。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;ret&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;frame&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cap&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;cv2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;imshow&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;camera capture&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;frame&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最後にキャプチャ用のインスタンスを開放する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;cap&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;release&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;エラーが！？&lt;/h2&gt;
+&lt;p&gt;上記のコードでキャプチャできるはず。
+なのに、以下のエラーが。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;​​OpenCV Error: Unspecified error (The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Carbon support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script) in cvShowImage, file /opt/conda/conda-bld/opencv_1491943414359/work/opencv-3.1.0/modules/highgui/src/window.cpp, line 545
+​​Traceback (most recent call last):
+​​  File &amp;quot;&amp;lt;stdin&amp;gt;&amp;quot;, line 1, in &amp;lt;module&amp;gt;
+​​cv2.error: /opt/conda/conda-bld/opencv_1491943414359/work/opencv-3.1.0/modules/highgui/src/window.cpp:545: error: (-2) The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Carbon support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script in function cvShowImage
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;とりあえずググったところ、エラーメッセージにあるように、
+OpenCVの再インストールが必要らしい。
+（&lt;a href="http://qiita.com/SE96UoC5AfUt7uY/items/ea5ad55736e3e9470b6a"&gt;参考&lt;/a&gt;）
+ターミナルで以下のコマンドを実行。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ conda install -c menpo opencv
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;これでキャプチャはできた&lt;/h2&gt;
+&lt;p&gt;しかし、まだエラー（警告？）がでている。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;​​HIGHGUI ERROR: V4L/V4L2: VIDIOC_S_CROP
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ググッてみるとv4lというライブラリが必要らしい。
+ならばとapt-getしても最新版が入っていると怒られる。&lt;/p&gt;
+&lt;p&gt;影響含め今後の課題として、先に進むことにしよう。&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/tok41/ObjectTracker/blob/master/videoCapture/simpleVideoCapture.py"&gt;ここまでのコード&lt;/a&gt;をgithubにアップしているので、
+必要な方は参考にしていただけたらと。&lt;/p&gt;
+&lt;h1&gt;カラーフィルタを作ってみる&lt;/h1&gt;
+&lt;h2&gt;やること&lt;/h2&gt;
+&lt;p&gt;カメラからキャプチャした映像の中で、特定の色以外をマスクするフィルタを作る。
+そして、リアルタイムでフィルタ処理した映像を表示する。&lt;/p&gt;
+&lt;p&gt;↓こんな画像を&lt;/p&gt;
+&lt;p&gt;&lt;img alt="base_image" src="/images/raw_image.png"&gt;&lt;/p&gt;
+&lt;p&gt;↓こんな感じにする。元画像の赤成分のピクセルだけが残る。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="filtered_image" src="/images/filtered_image.png"&gt;&lt;/p&gt;
+&lt;p&gt;以下で説明するフィルタを実装して、webカメラ画像にフィルタを当てるコードを
+githubにコードをアップしているので、
+必要な方は参考にしていただけたらと。
+（&lt;a href="https://github.com/tok41/ObjectTracker/blob/master/videoCapture/simpleColorTracker.py"&gt;ここ&lt;/a&gt;）&lt;/p&gt;
+&lt;h2&gt;色の認識&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;cap.read()&lt;/code&gt;でキャプチャした画像は[hight, width, color-channel]の
+3次元配列になっている。
+OpenCVでキャプチャした画像は、color-channelがBGRの3チャネル分なので、
+color-channelを使えば、色の認識はできそうに思える。&lt;/p&gt;
+&lt;p&gt;しかし、光の当たり方など考慮した色の範囲を定義するのは難しい。
+&lt;code&gt;[B,G,R]=[0, 0, 255]&lt;/code&gt;なら赤として良いであろうが、
+各チャネルの値の範囲をどこまで許すかは一概に決めるのはちょっと難しい
+（適当に決めればできるだろうけど）。&lt;/p&gt;
+&lt;p&gt;そこで、
+&lt;a href="https://ja.wikipedia.org/wiki/HSV%E8%89%B2%E7%A9%BA%E9%96%93"&gt;HSV表現（Wikipedia）&lt;/a&gt;を
+使って、色を定義する。&lt;/p&gt;
+&lt;h3&gt;HSV表現とは&lt;/h3&gt;
+&lt;p&gt;すごーくざっくり言うと、
+色をRGBじゃなくて、
+色相(Hue)、彩度(Saturation)、明度(Brightness)の
+三つの成分で定義する。&lt;/p&gt;
+&lt;p&gt;色相が0度から360度の範囲で色を定義する。
+連続値で色を表現できるので、大きさ（範囲）を適当に決めれば
+ちょっと色合いが違っていても赤なら赤と認識できる。&lt;/p&gt;
+&lt;p&gt;HSVの色相では、赤は0度、青は120度、緑は240度になる。&lt;/p&gt;
+&lt;h3&gt;HSV表現の計算&lt;/h3&gt;
+&lt;p&gt;OpenCVで取得したBGR画像のHSV表現への変換はOpenCVで一発。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;frame_hsv&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cv2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cvtColor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;frame&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cv2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;COLOR_BGR2HSV_FULL&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;frame_h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;frame_hsv&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;# 色相&lt;/span&gt;
+&lt;span class="n"&gt;frame_s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;frame_hsv&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;# 彩度&lt;/span&gt;
+&lt;span class="n"&gt;frame_v&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;frame_hsv&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;# 明度&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;フィルタの作成&lt;/h2&gt;
+&lt;p&gt;ここで作成するフィルタは、指定範囲の色以外を真っ黒に塗りつぶす。
+指定範囲の色部分だけをそのまま原画像を表示するというもの。&lt;/p&gt;
+&lt;p&gt;カラーフィルタ作成の手順は以下の通り&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;中央の色を指定（RGBで指定）&lt;/li&gt;
+&lt;li&gt;HSV表現の範囲を計算&lt;/li&gt;
+&lt;li&gt;キャプチャ画像の中で範囲に収まるピクセルを定義するROI（RegionOfInterest）を計算&lt;/li&gt;
+&lt;li&gt;キャプチャ画像にROIをかける&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;中央の色を指定（RGBで指定）&lt;/h3&gt;
+&lt;p&gt;RGBの値を3次元のタプルで指定する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;HSV表現の範囲を計算&lt;/h3&gt;
+&lt;p&gt;Wikipediaのページを参考に、以下の関数getHueRangeを作成した。
+getHueRangeは、color_mapにRGBで指定する中央の色を入力し、
+そのcolor_mapから色相でh_widthの範囲までの色相の範囲を計算する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;getHueRange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h_width&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;30&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class="sd"&gt;    Args:&lt;/span&gt;
+&lt;span class="sd"&gt;      color_map : tuple(R,G,B), 0.0~1.0&lt;/span&gt;
+&lt;span class="sd"&gt;      h_width : Hの範囲(degree)&lt;/span&gt;
+&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
+&lt;span class="sd"&gt;      min_range_h : hの範囲の最小値&lt;/span&gt;
+&lt;span class="sd"&gt;      max_range_h : hの範囲の最大値&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class="c1"&gt;# HSV表現の色相を計算する&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="c1"&gt;# min=R&lt;/span&gt;
+        &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;60.0&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+                         &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;180.0&lt;/span&gt;
+    &lt;span class="k"&gt;elif&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="c1"&gt;# min=G&lt;/span&gt;
+        &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;60.0&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+                         &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;300.0&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="c1"&gt;# min=B&lt;/span&gt;
+        &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;60.0&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; 
+                    &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color_map&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mf"&gt;60.0&lt;/span&gt;
+    &lt;span class="c1"&gt;# 0~255の整数に収める&lt;/span&gt;
+    &lt;span class="n"&gt;min_range_h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;h_width&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;255.0&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;360.0&lt;/span&gt;
+    &lt;span class="n"&gt;max_range_h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;h_width&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mf"&gt;255.0&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;360.0&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;min_range_h&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;max_range_h&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;定義に従ってRGBから色相を計算する。
+色相の範囲は単純に幅（h_width）の足し引きしたものになる。
+そして、OpenCVでの色相の範囲が0~255なので値を調整する。&lt;/p&gt;
+&lt;p&gt;彩度や明度も定義が必要だが、ここでは指定しない。&lt;/p&gt;
+&lt;h3&gt;ROI（RegionOfInterest）を計算&lt;/h3&gt;
+&lt;p&gt;ここで作るROIは、キャプチャ画像の各ピクセルが、
+上記で計算したHSV表現の色の範囲に収まっているのかを判定し、
+範囲に収まっていれば1とし、それ以外を0とするもの。&lt;/p&gt;
+&lt;p&gt;gituhubに&lt;a href="https://github.com/tok41/ObjectTracker/blob/master/videoCapture/simpleColorTracker.py"&gt;アップしているコード&lt;/a&gt;では、
+getColorROIという関数に実装している。&lt;/p&gt;
+&lt;p&gt;まずは、キャプチャ画像をHSV表現に変換する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# BGRイメージをHSV表現に変換する&lt;/span&gt;
+&lt;span class="n"&gt;frame_hsv&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cv2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cvtColor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;frame&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cv2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;COLOR_BGR2HSV_FULL&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;frame_h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;frame_hsv&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;# 色相&lt;/span&gt;
+&lt;span class="n"&gt;frame_s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;frame_hsv&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;# 彩度&lt;/span&gt;
+&lt;span class="n"&gt;frame_v&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;frame_hsv&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;# 明度&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;次に、キャプチャ画像と同じサイズの0ベクトルを作成。
+opencvでのキャプチャ画像がuint8なので、
+型を揃えておくと後で計算が楽。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;roi&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zeros_like&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;frame_h&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;uint8&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;上記の手順で計算したHSV表現の範囲を&lt;code&gt;h_range&lt;/code&gt;としておく。
+ここまで彩度は定義して来なかったが、128以上としておく。
+これらを使って、画像の各ピクセルが範囲内であれば1となるように
+roiを設定する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;roi&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;frame_h&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;min_range_h&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;frame_h&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;=&lt;/span&gt;&lt;span class="n"&gt;max_range_h&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+      &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;frame_h&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;255&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;min_range_h&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;frame_h&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;255&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;=&lt;/span&gt;&lt;span class="n"&gt;max_range_h&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+      &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;frame_s&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;=&lt;/span&gt;&lt;span class="n"&gt;saturation&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ここで、色相の範囲は0~255だが、getHueRangeで計算した色相の範囲は
+単純に中央の値から範囲を±しているものなので、
+範囲を超えることがある。
+そのため、範囲を超えることを想定して、orで追加で範囲を指定。&lt;/p&gt;
+&lt;h3&gt;キャプチャ画像にROIをかける&lt;/h3&gt;
+&lt;p&gt;キャプチャ画像にフィルタをかける。
+単純に、3チャネル分の2次元配列に、ROIの値を掛ければ良い。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# ROIを3チャネルに拡張&lt;/span&gt;
+&lt;span class="n"&gt;roi3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concatenate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+     &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;roi&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newaxis&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;roi&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newaxis&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;roi&lt;/span&gt;&lt;span class="p"&gt;[:,:,&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newaxis&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+     &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;frame_masked&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;frame&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;roi3&lt;/span&gt;
+
+&lt;span class="n"&gt;cv2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;imshow&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ColorTracker&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;frame_masked&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;全体のコード&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://github.com/tok41/ObjectTracker/blob/master/videoCapture/simpleColorTracker.py"&gt;github&lt;/a&gt;にアップしています。&lt;/p&gt;
+&lt;p&gt;上記コードでは最初は原画像を表示しておき、
+キー入力によって表示するカラーを指定する。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;r：赤だけを表示するフィルタを設定&lt;/li&gt;
+&lt;li&gt;g：緑だけを表示するフィルタを設定&lt;/li&gt;
+&lt;li&gt;b：青だけを表示するフィルタを設定&lt;/li&gt;
+&lt;li&gt;p：原画像を表示&lt;/li&gt;
+&lt;li&gt;q：終了&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;終わりに&lt;/h1&gt;
+&lt;p&gt;OpenCVを使ってPythonでWebカメラの画像をキャプチャする手順を紹介した。
+また、画像処理の簡単な例として、カラーフィルタを作成した。&lt;/p&gt;
+&lt;h2&gt;今後の課題&lt;/h2&gt;
+&lt;p&gt;ここまでで画像処理をやっていくための基礎ができたので、
+今後は物体のトラッキングや認識などをやっていきたい&lt;/p&gt;
+&lt;p&gt;また、以下の警告の対応を検討する。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;V4L問題&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;参考&lt;/h1&gt;</content><category term="programming"></category><category term="python"></category></entry></feed>
