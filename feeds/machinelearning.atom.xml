@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>41 LOG - MachineLearning</title><link href="http://tok41.github.io/" rel="alternate"></link><link href="http://tok41.github.io/feeds/machinelearning.atom.xml" rel="self"></link><id>http://tok41.github.io/</id><updated>2017-10-29T18:00:00+09:00</updated><entry><title>Caffe環境の導入</title><link href="http://tok41.github.io/caffe-install.html" rel="alternate"></link><published>2017-10-29T18:00:00+09:00</published><updated>2017-10-29T18:00:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-10-29:/caffe-install.html</id><summary type="html">&lt;p&gt;深層学習ライブラリcaffeをインストールする。&lt;/p&gt;</summary><content type="html">&lt;p&gt;深層学習をする場合、私は普段chainerを使って書いているわけですが、
+仕事でcaffeが必要になったので環境構築しました。&lt;/p&gt;
+&lt;p&gt;なんだかんだ調べてやってたらえらい時間がかかりました。
+chainerやtensorflowなら一瞬なのに。。。&lt;/p&gt;
+&lt;p&gt;既にweb上には日本語でも英語でも同様の記事が大量に溢れていますが、
+備忘録を兼ねてまとめておきます。&lt;/p&gt;
+&lt;p&gt;誰かの参考になれば。&lt;/p&gt;
+&lt;h1&gt;環境&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;OS : Ubuntu 16.04.2 LTS&lt;/li&gt;
+&lt;li&gt;CPU : Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz&lt;/li&gt;
+&lt;li&gt;GPU : GeForce GTX 1070&lt;/li&gt;
+&lt;li&gt;RAM : 8GB&lt;/li&gt;
+&lt;li&gt;Python : Python 2.7.13 :: Anaconda custom (64-bit)&lt;/li&gt;
+&lt;li&gt;CUDA-8.0&lt;/li&gt;
+&lt;li&gt;OpenCV : 3.1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;インストール&lt;/h1&gt;
+&lt;h2&gt;手順概要&lt;/h2&gt;
+&lt;p&gt;環境構築については、&lt;a href="https://github.com/BVLC/caffe/wiki/Ubuntu-16.04-or-15.10-Installation-Guide"&gt;公式git&lt;/a&gt;を参考にすればよいです。
+ここに記載の通りに進めていけば問題ないかと。&lt;/p&gt;
+&lt;p&gt;以下の手順で進めていきます。
+- OpenCVのインストール（本稿では記載しない）
+- CUDA関連のインストール（本稿では記載しない）
+- aptで必須パッケージをインストール
+- caffeのリポジトリのclone
+- caffeのビルド&lt;/p&gt;
+&lt;h2&gt;aptで必須パッケージをインストール&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://github.com/BVLC/caffe/wiki/Ubuntu-16.04-or-15.10-Installation-Guide"&gt;公式git&lt;/a&gt;に記載の通り、
+はじめにaptで必須パッケージを導入します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install -y build-essential cmake git pkg-config
+sudo apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler
+sudo apt-get install -y libatlas-base-dev 
+sudo apt-get install -y --no-install-recommends libboost-all-dev
+sudo apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;caffeのリポジトリのclone&lt;/h2&gt;
+&lt;p&gt;gitでcaffeを入手します。
+gitが使えないならzipファイルでダウンロードしてきても良いはずですが、未確認です。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone https://github.com/BVLC/caffe.git
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;caffeのビルド&lt;/h2&gt;
+&lt;p&gt;いよいよcaffeをビルドします。
+Makeconfigを環境に合わせて書き換え、makeを実行します。&lt;/p&gt;
+&lt;p&gt;CMakeでmakefileを作る方法もありますが、私は試していません。&lt;/p&gt;
+&lt;h3&gt;Makefile.config作成&lt;/h3&gt;
+&lt;p&gt;caffeのリポジトリの中に、Makefile.config.exampleがあるので、これを自分の環境に合わせて書き換えます。&lt;/p&gt;
+&lt;p&gt;私の環境では以下のように変更しました。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diff Makefile.config Makefile.config.example 
+
+5c5
+&amp;lt; USE_CUDNN :&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+---
+&amp;gt; &lt;span class="c1"&gt;# USE_CUDNN := 1&lt;/span&gt;
+
+21c21
+&amp;lt; OPENCV_VERSION :&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;3&lt;/span&gt;
+---
+&amp;gt; &lt;span class="c1"&gt;# OPENCV_VERSION := 3&lt;/span&gt;
+
+28c28
+&amp;lt; CUDA_DIR :&lt;span class="o"&gt;=&lt;/span&gt; /usr/local/cuda-8.0
+---
+&amp;gt; CUDA_DIR :&lt;span class="o"&gt;=&lt;/span&gt; /usr/local/cuda
+
+&lt;span class="m"&gt;68&lt;/span&gt;,69c68,69
+&amp;lt; &lt;span class="c1"&gt;#PYTHON_INCLUDE := /usr/include/python2.7 \&lt;/span&gt;
+&amp;lt; &lt;span class="c1"&gt;#     /usr/lib/python2.7/dist-packages/numpy/core/include&lt;/span&gt;
+---
+&amp;gt; PYTHON_INCLUDE :&lt;span class="o"&gt;=&lt;/span&gt; /usr/include/python2.7 &lt;span class="se"&gt;\&lt;/span&gt;
+&amp;gt;       /usr/lib/python2.7/dist-packages/numpy/core/include
+
+&lt;span class="m"&gt;72&lt;/span&gt;,75c72,75
+&amp;lt; ANACONDA_HOME :&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;HOME&lt;span class="k"&gt;)&lt;/span&gt;/.pyenv/versions/anaconda2-4.3.0
+&amp;lt; PYTHON_INCLUDE :&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;ANACONDA_HOME&lt;span class="k"&gt;)&lt;/span&gt;/include &lt;span class="se"&gt;\&lt;/span&gt;
+&amp;lt;          &lt;span class="k"&gt;$(&lt;/span&gt;ANACONDA_HOME&lt;span class="k"&gt;)&lt;/span&gt;/include/python2.7 &lt;span class="se"&gt;\&lt;/span&gt;
+&amp;lt;          &lt;span class="k"&gt;$(&lt;/span&gt;ANACONDA_HOME&lt;span class="k"&gt;)&lt;/span&gt;/lib/python2.7/site-packages/numpy/core/include
+---
+&amp;gt; &lt;span class="c1"&gt;# ANACONDA_HOME := $(HOME)/anaconda&lt;/span&gt;
+&amp;gt; &lt;span class="c1"&gt;# PYTHON_INCLUDE := $(ANACONDA_HOME)/include \&lt;/span&gt;
+&amp;gt;       &lt;span class="c1"&gt;# $(ANACONDA_HOME)/include/python2.7 \&lt;/span&gt;
+&amp;gt;       &lt;span class="c1"&gt;# $(ANACONDA_HOME)/lib/python2.7/site-packages/numpy/core/include&lt;/span&gt;
+
+&lt;span class="m"&gt;83&lt;/span&gt;,84c83,84
+&amp;lt; &lt;span class="c1"&gt;# PYTHON_LIB := /usr/lib&lt;/span&gt;
+&amp;lt; PYTHON_LIB :&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;ANACONDA_HOME&lt;span class="k"&gt;)&lt;/span&gt;/lib
+---
+&amp;gt; PYTHON_LIB :&lt;span class="o"&gt;=&lt;/span&gt; /usr/lib
+&amp;gt; &lt;span class="c1"&gt;# PYTHON_LIB := $(ANACONDA_HOME)/lib&lt;/span&gt;
+
+91c91
+&amp;lt; WITH_PYTHON_LAYER :&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+---
+&amp;gt; &lt;span class="c1"&gt;# WITH_PYTHON_LAYER := 1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;pythonのパッケージをインストール&lt;/h3&gt;
+&lt;p&gt;公式に案内の通り、以下のパッケージを導入。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; python
+$ &lt;span class="k"&gt;for&lt;/span&gt; req in &lt;span class="k"&gt;$(&lt;/span&gt;cat requirements.txt&lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; pip install &lt;span class="nv"&gt;$req&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;ライブラリのリンク貼るなど&lt;/h3&gt;
+&lt;p&gt;公式の通り、以下のコマンドでhdf5関連のライブラリのリンクを張る。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; /usr/lib/x86_64-linux-gnu
+$ sudo ln -s libhdf5_serial.so.10.1.0 libhdf5.so
+$ sudo ln -s libhdf5_serial_hl.so.10.0.2 libhdf5_hl.so
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;次いで、Ubuntu16を使っているので、以下のコマンド実行。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ find . -type f -exec sed -i -e &lt;span class="s1"&gt;&amp;#39;s^&amp;quot;hdf5.h&amp;quot;^&amp;quot;hdf5/serial/hdf5.h&amp;quot;^g&amp;#39;&lt;/span&gt; -e &lt;span class="s1"&gt;&amp;#39;s^&amp;quot;hdf5_hl.h&amp;quot;^&amp;quot;hdf5/serial/hdf5_hl.h&amp;quot;^g&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;Makefileの修正&lt;/h3&gt;
+&lt;p&gt;公式の通り、以下の部分を変更する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git diff Makefile
+diff --git a/Makefile b/Makefile
+index 4d32416..cf37bd0 &lt;span class="m"&gt;100644&lt;/span&gt;
+--- a/Makefile
++++ b/Makefile
+@@ -193,6 +193,9 @@ ifeq &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;USE_LMDB&lt;span class="k"&gt;)&lt;/span&gt;, &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+ endif
+ ifeq &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;USE_OPENCV&lt;span class="k"&gt;)&lt;/span&gt;, &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+        &lt;span class="nv"&gt;LIBRARIES&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; opencv_core opencv_highgui opencv_imgproc
++       &lt;span class="nv"&gt;LIBRARIES&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; glog gflags protobuf leveldb snappy &lt;span class="se"&gt;\&lt;/span&gt;
++               lmdb boost_system boost_filesystem hdf5_hl hdf5 m &lt;span class="se"&gt;\&lt;/span&gt;
++               opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs opencv_videoio
+
+        ifeq &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;OPENCV_VERSION&lt;span class="k"&gt;)&lt;/span&gt;, &lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+                &lt;span class="nv"&gt;LIBRARIES&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; opencv_imgcodecs
+@@ -412,7 +415,8 @@ &lt;span class="nv"&gt;CXXFLAGS&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; -MMD -MP
+ &lt;span class="c1"&gt;# Complete build flags.&lt;/span&gt;
+ &lt;span class="nv"&gt;COMMON_FLAGS&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;foreach includedir,&lt;span class="k"&gt;$(&lt;/span&gt;INCLUDE_DIRS&lt;span class="k"&gt;)&lt;/span&gt;,-I&lt;span class="k"&gt;$(&lt;/span&gt;includedir&lt;span class="k"&gt;))&lt;/span&gt;
+ &lt;span class="nv"&gt;CXXFLAGS&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; -pthread -fPIC &lt;span class="k"&gt;$(&lt;/span&gt;COMMON_FLAGS&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;WARNINGS&lt;span class="k"&gt;)&lt;/span&gt;
+-NVCCFLAGS +&lt;span class="o"&gt;=&lt;/span&gt; -ccbin&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;CXX&lt;span class="k"&gt;)&lt;/span&gt; -Xcompiler -fPIC &lt;span class="k"&gt;$(&lt;/span&gt;COMMON_FLAGS&lt;span class="k"&gt;)&lt;/span&gt;
++#NVCCFLAGS +&lt;span class="o"&gt;=&lt;/span&gt; -ccbin&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;CXX&lt;span class="k"&gt;)&lt;/span&gt; -Xcompiler -fPIC &lt;span class="k"&gt;$(&lt;/span&gt;COMMON_FLAGS&lt;span class="k"&gt;)&lt;/span&gt;
++NVCCFLAGS +&lt;span class="o"&gt;=&lt;/span&gt; -D_FORCE_INLINES -ccbin&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;CXX&lt;span class="k"&gt;)&lt;/span&gt; -Xcompiler -fPIC &lt;span class="k"&gt;$(&lt;/span&gt;COMMON_FLAGS&lt;span class="k"&gt;)&lt;/span&gt;
+ &lt;span class="c1"&gt;# mex may invoke an older gcc that is too liberal with -Wuninitalized&lt;/span&gt;
+ MATLAB_CXXFLAGS :&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;CXXFLAGS&lt;span class="k"&gt;)&lt;/span&gt; -Wno-uninitialized
+ &lt;span class="nv"&gt;LINKFLAGS&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; -pthread -fPIC &lt;span class="k"&gt;$(&lt;/span&gt;COMMON_FLAGS&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;WARNINGS&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;いよいよビルド&lt;/h3&gt;
+&lt;p&gt;ここまででビルドの準備ができたので、ビルドします。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ make all -j &lt;span class="k"&gt;$(($(&lt;/span&gt;nproc&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以下のエラーに遭遇。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;fatal error: pyconfig.h: No such file or directory
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;python関連のヘッダファイルのパスを通しておく必要があるようです。
+（&lt;a href="https://github.com/BVLC/caffe/issues/410"&gt;参照&lt;/a&gt;）&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;CPLUS_INCLUDE_PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/usr/include/python2.7
+$ make all -j &lt;span class="k"&gt;$(($(&lt;/span&gt;nproc&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;これでmakeが通ったので、以下の通りビルドする。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ make &lt;span class="nb"&gt;test&lt;/span&gt; -j &lt;span class="k"&gt;$(($(&lt;/span&gt;nproc&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+$ make pycaffe -j &lt;span class="k"&gt;$(($(&lt;/span&gt;nproc&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+$ make distribute -j &lt;span class="k"&gt;$(($(&lt;/span&gt;nproc&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;pycaffeのインポートでエラー&lt;/h3&gt;
+&lt;p&gt;pythonでimportする際に以下のエラーに遭遇。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ImportError: &lt;span class="cp"&gt;${&lt;/span&gt;&lt;span class="n"&gt;HOME&lt;/span&gt;&lt;span class="cp"&gt;}&lt;/span&gt;/.pyenv/versions/anaconda2-4.3.0/envs/test/bin/../lib/libstdc++.so.6: version `GLIBCXX_3.4.21&amp;#39; not found (required by &lt;span class="cp"&gt;${&lt;/span&gt;&lt;span class="n"&gt;HOME&lt;/span&gt;&lt;span class="cp"&gt;}&lt;/span&gt;/etc/caffe/python/caffe/_caffe.so)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;condaでlibgccをインストールすれば良いらしい(&lt;a href="https://github.com/BVLC/caffe/issues/4953"&gt;参照&lt;/a&gt;)。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ conda install libgcc
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;テスト&lt;/h1&gt;
+&lt;p&gt;caffeのexampleがあるので、そちらを実行すると良いです。&lt;/p&gt;
+&lt;p&gt;example/00-classification.ipynbで画像分類を試行できます（jupyter notebookを立てることが必要）。&lt;/p&gt;</content><category term="programming"></category><category term="caffe"></category><category term="DeepLearning"></category></entry></feed>
