@@ -1,5 +1,271 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>41 LOG - MachineLearning</title><link href="http://tok41.github.io/" rel="alternate"></link><link href="http://tok41.github.io/feeds/machinelearning.atom.xml" rel="self"></link><id>http://tok41.github.io/</id><updated>2017-10-29T18:00:00+09:00</updated><entry><title>Caffe環境の導入</title><link href="http://tok41.github.io/caffe-install.html" rel="alternate"></link><published>2017-10-29T18:00:00+09:00</published><updated>2017-10-29T18:00:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-10-29:/caffe-install.html</id><summary type="html">&lt;p&gt;深層学習ライブラリcaffeをインストールする。&lt;/p&gt;</summary><content type="html">&lt;p&gt;深層学習をする場合、私は普段chainerを使って書いているわけですが、
+<feed xmlns="http://www.w3.org/2005/Atom"><title>41 LOG - MachineLearning</title><link href="http://tok41.github.io/" rel="alternate"></link><link href="http://tok41.github.io/feeds/machinelearning.atom.xml" rel="self"></link><id>http://tok41.github.io/</id><updated>2017-10-31T01:00:00+09:00</updated><entry><title>Caffeを使ったC++コードのビルド</title><link href="http://tok41.github.io/caffe-first-build.html" rel="alternate"></link><published>2017-10-31T01:00:00+09:00</published><updated>2017-10-31T01:00:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-10-31:/caffe-first-build.html</id><summary type="html">&lt;p&gt;深層学習ライブラリcaffeを使ったC++コードをビルドする手順（初心者向け）&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;a href="https://tok41.github.io/caffe-install.html"&gt;以前の記事&lt;/a&gt;では、
+githubからcaffeリポジトリをcloneしてビルドし、
+サンプルコードを走らせてみるところをやりました。
+モデルファイルやソルバーの設定ファイルを書き換えれば、
+基本のcaffeのコードでいろいろ深層学習を試すことができます。&lt;/p&gt;
+&lt;p&gt;しかし、自分で書いたアプリケーションで深層学習するためには
+caffeをライブラリとして読み込んで利用することになります。
+（条件が合えばcaffeの実行ファイルを呼ぶということもできると思うが）&lt;/p&gt;
+&lt;p&gt;そこで本記事では、caffeをライブラリとしてimportし、
+学習と推論を実行するコードを書いてみます。
+コードは&lt;a href="https://github.com/tok41/simple_caffe_samples/tree/master"&gt;github&lt;/a&gt;に
+上げてあります。&lt;/p&gt;
+&lt;p&gt;初めてcaffeを触る人向け。
+誰かの参考になれば。&lt;/p&gt;
+&lt;h1&gt;環境&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;OS : Ubuntu 16.04.2 LTS&lt;/li&gt;
+&lt;li&gt;CPU : Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz&lt;/li&gt;
+&lt;li&gt;GPU : GeForce GTX 1070&lt;/li&gt;
+&lt;li&gt;RAM : 8GB&lt;/li&gt;
+&lt;li&gt;Python : Python 2.7.13 :: Anaconda custom (64-bit)&lt;/li&gt;
+&lt;li&gt;CUDA-8.0&lt;/li&gt;
+&lt;li&gt;OpenCV : 3.1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;参考にさせて頂いたページ&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;http://d.hatena.ne.jp/muupan/20141010/1412895321&lt;/li&gt;
+&lt;li&gt;参考というレベルではなく、参考にさせていただきました&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://caffe.berkeleyvision.org/"&gt;caffe公式&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Makefileやtools/caffe.cppが参考になります&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;対象にする問題&lt;/h1&gt;
+&lt;p&gt;ここでは、最もシンプルな線形回帰問題を対象にしてcaffeを使ったコードを
+ビルドする方法を練習します。&lt;/p&gt;
+&lt;h2&gt;1次元線形回帰モデル&lt;/h2&gt;
+&lt;p&gt;以下の図に示すモデルを対象とします。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="simplest_regression_model" src="/images/simplest_regression_model.png"&gt;&lt;/p&gt;
+&lt;p&gt;入力が1次元(x)で出力も1次元、いわゆる&lt;code&gt;y=ax+b&lt;/code&gt;のモデルで、
+未知パラメータである&lt;code&gt;a&lt;/code&gt;（重み）と&lt;code&gt;b&lt;/code&gt;（バイアス）の2つのパラメータを
+学習したいというものです。&lt;/p&gt;
+&lt;p&gt;学習としてはできて当たり前、というか最小二乗法などで解いたほうが速いですが、
+あくまで練習と割りきってやってみます。&lt;/p&gt;
+&lt;h2&gt;データ&lt;/h2&gt;
+&lt;p&gt;データは、&lt;code&gt;a&lt;/code&gt;と&lt;code&gt;b&lt;/code&gt;を適当に決めたモデル式に従って、
+小さいガウスノイズを載せた形で生成しました（下図）。
+データを生成するためのコードも&lt;a href="https://github.com/tok41/simple_caffe_samples/blob/master/ipynb/generate-sample-data.ipynb"&gt;github&lt;/a&gt;にアップしています。
+ipynbなので、jupyterで実行してください。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="simplest_sample_data" src="/images/sample_data_linear_regression_simplest.png"&gt;&lt;/p&gt;
+&lt;p&gt;また、ラベルが離散的に与えられるようなデータも作ってみました(下図)。
+が、結局一次線形なモデルなので、学習できて当たり前です。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="descrete_sample_data" src="/images/sample_data_linear_regression_descrete.png"&gt;&lt;/p&gt;
+&lt;h1&gt;Caffeを使ったコード&lt;/h1&gt;
+&lt;p&gt;私の&lt;a href="https://github.com/tok41/simple_caffe_samples/tree/master"&gt;github&lt;/a&gt;を
+参照してください。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;caffe-1d-regression.cpp : メイン&lt;/li&gt;
+&lt;li&gt;net.prototxt : networkの定義&lt;/li&gt;
+&lt;li&gt;solver.prototxt : solver定義&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;というか、
+上記の&lt;a href="http://d.hatena.ne.jp/muupan/20141010/1412895321"&gt;こちらのページ&lt;/a&gt;のコードを
+ほぼ使わせていただいています。&lt;/p&gt;
+&lt;h2&gt;Solver&lt;/h2&gt;
+&lt;p&gt;solver定義(solver.prototxt)は完全にコピーです。&lt;/p&gt;
+&lt;h2&gt;Network&lt;/h2&gt;
+&lt;p&gt;net.prototxtですが、
+まず1変数の線形回帰をするので、入力層を以下のように定義しています。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;layers {
+    name : &amp;quot;input&amp;quot;
+    type: MEMORY_DATA
+    top: &amp;quot;input&amp;quot;
+    top: &amp;quot;dummy_label1&amp;quot;
+    memory_data_param {
+        batch_size: 10
+        channels: 1
+        height: 1
+        width: 1
+    }
+}                               
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;外部ファイルのでーたをメモリに展開して入力するつもりなので、
+LayerのtypeはMEMORY_DATAです。
+回帰をするので、ラベルデータは存在しません。
+なので、dummy_label1として、適当な値を入力することにします。&lt;/p&gt;
+&lt;p&gt;FullConnect層で、出力を1つ、重みとバイアスを定義しています。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;layers {
+    name: &amp;quot;ip&amp;quot;
+    type: INNER_PRODUCT
+    bottom: &amp;quot;input&amp;quot;
+    top: &amp;quot;ip&amp;quot;
+    inner_product_param {
+        num_output: 1
+        weight_filler {
+            type: &amp;quot;constant&amp;quot;
+            value: 0
+        }
+        bias_filler {
+            type: &amp;quot;constant&amp;quot;
+            value: 0
+        }
+    }
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;lossを計算するために、targetを定義する層を定義します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;layers {
+    name: &amp;quot;target&amp;quot;
+    type: MEMORY_DATA
+    top: &amp;quot;target&amp;quot;
+    top: &amp;quot;dummy_label2&amp;quot;
+    memory_data_param {
+        batch_size: 10
+        channels: 1
+        height: 1
+        width: 1
+    }
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;回帰問題なので、targetには&lt;code&gt;y=ax+b&lt;/code&gt;の&lt;code&gt;y&lt;/code&gt;を入力します。
+これもラベルデータは存在せず、適当なデータを入力します。&lt;/p&gt;
+&lt;h2&gt;Main(caffe-1d-regression.cpp)&lt;/h2&gt;
+&lt;p&gt;コードは&lt;a href="https://github.com/tok41/simple_caffe_samples/blob/master/caffe-1d-regression.cpp"&gt;ちら&lt;/a&gt;を参照してください。&lt;/p&gt;
+&lt;h3&gt;データのメモリへの展開&lt;/h3&gt;
+&lt;p&gt;main関数内の29行から60行まででCSVデータを取り込んでいます
+（main関数の半分以上の行数!）。
+なお、CSVファイルを取り込むために、split関数を定義しています。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;void&lt;/span&gt; &lt;span class="nt"&gt;split&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;const&lt;/span&gt; &lt;span class="nt"&gt;std&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;string&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="nt"&gt;s&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;char&lt;/span&gt; &lt;span class="nt"&gt;delim&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;std&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;function&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="nt"&gt;void&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;std&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;string&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="o"&gt;)&amp;gt;&lt;/span&gt; &lt;span class="nt"&gt;f&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;istringstream&lt;/span&gt; &lt;span class="nf"&gt;stream&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="err"&gt;int&lt;/span&gt; &lt;span class="err"&gt;i=0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="err"&gt;while(getline(stream,&lt;/span&gt; &lt;span class="err"&gt;token,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;,&amp;#39;)){&lt;/span&gt;
+    &lt;span class="err"&gt;f(i,&lt;/span&gt; &lt;span class="err"&gt;token)&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="err"&gt;i++&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="err"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;この関数は、csv文字列(s)と分割文字(delim)、
+切り出した文字列に適用する関数を受け取ります。
+以下のようにして使います。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;split&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;line&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;int&lt;/span&gt; &lt;span class="nt"&gt;i&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;std&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;string&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="nt"&gt;token&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="err"&gt;dataMap&lt;/span&gt;&lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="err"&gt;.push_back(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="nf"&gt;stof&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;Solver&lt;/h3&gt;
+&lt;p&gt;prototxtを取り込んでSolverを作成します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;caffe&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;SolverParameter&lt;/span&gt; &lt;span class="nt"&gt;solver_param&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="nt"&gt;caffe&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;ReadSolverParamsFromTextFileOrDie&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;solver.prototxt&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="nt"&gt;solver_param&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="nt"&gt;std&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;shared_ptr&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;caffe&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;Solver&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;float&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="nt"&gt;solver&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;caffe&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;SolverRegistry&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;float&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;CreateSolver&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;solver_param&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+&lt;span class="nt"&gt;const&lt;/span&gt; &lt;span class="nt"&gt;auto&lt;/span&gt; &lt;span class="nt"&gt;net&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nt"&gt;solver-&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nt"&gt;net&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;データの入力&lt;/h3&gt;
+&lt;p&gt;取り込んだデータを入力層にinputする設定を書きます。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;const&lt;/span&gt; &lt;span class="nt"&gt;auto&lt;/span&gt; &lt;span class="nt"&gt;input_layer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
+    &lt;span class="nt"&gt;boost&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;dynamic_pointer_cast&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;caffe&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;MemoryDataLayer&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;float&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;(&lt;/span&gt;&lt;span class="nt"&gt;net-&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nt"&gt;layer_by_name&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;input&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+&lt;span class="nt"&gt;assert&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;input_layer&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="nt"&gt;input_layer-&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nt"&gt;Reset&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;dataMap&lt;/span&gt;&lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;data&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="nt"&gt;dummy_data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;data&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="nt"&gt;dataMap&lt;/span&gt;&lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;size&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;目標データも同様に設定します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;const&lt;/span&gt; &lt;span class="nt"&gt;auto&lt;/span&gt; &lt;span class="nt"&gt;target_layer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
+    &lt;span class="nt"&gt;boost&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;dynamic_pointer_cast&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;caffe&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;MemoryDataLayer&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;float&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;(&lt;/span&gt;&lt;span class="nt"&gt;net-&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nt"&gt;layer_by_name&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;target&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+&lt;span class="nt"&gt;assert&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;target_layer&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="nt"&gt;target_layer-&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nt"&gt;Reset&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;dataMap&lt;/span&gt;&lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;data&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="nt"&gt;dummy_data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;data&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="nt"&gt;dataMap&lt;/span&gt;&lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;size&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;学習&lt;/h3&gt;
+&lt;p&gt;solverに従って学習を実施します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;solver-&amp;gt;Solve();
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;テスト&lt;/h3&gt;
+&lt;p&gt;学習済みのモデルを利用して、テストデータから出力を予測します。&lt;/p&gt;
+&lt;p&gt;テストデータはsample_inputという変数にします。
+一様分布に従う乱数を入力しています。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;std&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nd"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;float&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nt"&gt;sample_input&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="nt"&gt;for&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;int&lt;/span&gt; &lt;span class="nt"&gt;i&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nt"&gt;0&lt;/span&gt; &lt;span class="o"&gt;;&lt;/span&gt; &lt;span class="nt"&gt;i&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;batch_size&lt;/span&gt; &lt;span class="o"&gt;;&lt;/span&gt; &lt;span class="nt"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="err"&gt;バッチ分のデータを入力&lt;/span&gt;
+    &lt;span class="err"&gt;sample_input.push_back(dist(mt))&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;そして、評価データを入力層にinputします&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;input_layer-&amp;gt;Reset(sample_input.data(), dummy_data.data(), sample_input.size());
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Forwardメソッドで入力したデータでforward計算を実施します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;const auto result = net-&amp;gt;Forward();
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;ビルド&lt;/h1&gt;
+&lt;p&gt;上記のコードをビルドするために、以下のビルドコマンドを実行します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ g++ -std&lt;span class="o"&gt;=&lt;/span&gt;c++11 -I&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;HOME&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;/caffe/include -L&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;HOME&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;/caffe/build/lib caffe-sample.cpp -lcaffe -lglog -lboost_system -lhdf5 -lhdf5_hl
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;caffeのインストールディレクトリが&lt;code&gt;${HOME}/caffe&lt;/code&gt;の場合です。&lt;/p&gt;
+&lt;h2&gt;トラブルシュート&lt;/h2&gt;
+&lt;h3&gt;caffe/proto/caffe.pb.h が存在しないと怒られる&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://github.com/muupan/dqn-in-the-caffe/issues/3"&gt;こちら&lt;/a&gt;を参考にcaffe.pb.hを作る。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; ~/caffe
+$ protoc src/caffe/proto/caffe.proto --cpp_out&lt;span class="o"&gt;=&lt;/span&gt;.
+$ mkdir include/caffe/proto
+$ mv src/caffe/proto/caffe.pb.h include/caffe/proto
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;cublas_v2.hが見つからない&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://github.com/mhauskn/dqn-hfo"&gt;こちら&lt;/a&gt;を参考にすると、
+includeディレクトリのパスを通しておけと。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;CPLUS_INCLUDE_PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/usr/local/cuda/include:&lt;span class="nv"&gt;$CPLUS_INCLUDE_PATH&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;libcaffe.so.1.0.0が見つからない&lt;/h3&gt;
+&lt;p&gt;LD_LIBRARY_PATHにパスを追加。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;LD_LIBRARY_PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/home/yoichi/work/caffe/distribute/lib/:&lt;span class="nv"&gt;$LD_LIBRARY_PATH&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;実行時にライブラリが読めない&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ./a.out
+
+./a.out: error &lt;span class="k"&gt;while&lt;/span&gt; loading shared libraries: libhdf5_hl.so.100: cannot open shared object file: No such file or directory
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;詳しい人教えてください。&lt;/p&gt;
+&lt;p&gt;とりあえずリンクをa.outと同じディレクトリに張ったら通りました。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ln -s ~/.pyenv/versions/anaconda2-4.4.0/lib/libhdf5_hl.so.100
+$ ln -s ~/.pyenv/versions/anaconda2-4.4.0/lib/libhdf5_hl.so
+$ ln -s ~/.pyenv/versions/anaconda2-4.4.0/lib/libhdf5.so.101
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;おわりに&lt;/h1&gt;
+&lt;p&gt;ここまでで、caffeをライブラリC++コードで呼び出して使うための基礎を試行しました。
+ビルドコマンドで四苦八苦したり、ライブラリがリンクできなかったりと
+いろいろありましたがなんとかビルドできるところまで行きました。&lt;/p&gt;
+&lt;p&gt;今後、ネットワークを作って遊んでいこうと思います。
+（Chainerは簡単だな〜と実感）&lt;/p&gt;
+&lt;h1&gt;おまけ&lt;/h1&gt;
+&lt;p&gt;githubのコードを走らせると予測結果がcsvファイルで吐かれます
+(data/sampledata_discrete_target.csv)。
+また、学習済みのモデルファイルが出力されているはずです(_iter_4000.caffemodel)。&lt;/p&gt;
+&lt;p&gt;これらを読み込んで結果を確認してみます。&lt;/p&gt;
+&lt;p&gt;ipynbで&lt;a href="https://github.com/tok41/simple_caffe_samples/blob/master/ipynb/visualize_regression_result.ipynb"&gt;確認用のスクリプト&lt;/a&gt;を
+作成したのでご参照ください。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="regression_result" src="/images/regression_result_linear_regression_descrete.png"&gt;&lt;/p&gt;
+&lt;p&gt;狙い通りに飛び飛びの離散的な目的変数でも、
+間を補完する予測ができたの図。&lt;/p&gt;</content><category term="programming"></category><category term="caffe"></category><category term="DeepLearning"></category></entry><entry><title>Caffe環境の導入</title><link href="http://tok41.github.io/caffe-install.html" rel="alternate"></link><published>2017-10-29T18:00:00+09:00</published><updated>2017-10-29T18:00:00+09:00</updated><author><name>tok41</name></author><id>tag:tok41.github.io,2017-10-29:/caffe-install.html</id><summary type="html">&lt;p&gt;深層学習ライブラリcaffeをインストールする。&lt;/p&gt;</summary><content type="html">&lt;p&gt;深層学習をする場合、私は普段chainerを使って書いているわけですが、
 仕事でcaffeが必要になったので環境構築しました。&lt;/p&gt;
 &lt;p&gt;なんだかんだ調べてやってたらえらい時間がかかりました。
 chainerやtensorflowなら一瞬なのに。。。&lt;/p&gt;
