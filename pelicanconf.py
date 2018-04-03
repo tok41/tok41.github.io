@@ -30,6 +30,9 @@ SOCIAL = (('Twitter', 'https://twitter.com/yoichi_t'),
 #Twitter
 TWITTER_USERNAME = 'yoichi_t'
 
+# Google Analytics
+GOOGLE_ANALYTICS = "UA-110494059-2"
+
 # 
 DISPLAY_PAGES_ON_MENU = True
 DISPLAY_CATEGORIES_ON_MENU = True
