@@ -9,7 +9,9 @@
 
 ### Blog: [チョコボール統計](https://chocolate-ball.hatenablog.com/)
 
-チョコボールにまつわるデータを計測して分析して楽しんでる記録
+チョコボールにまつわるデータを計測して分析して楽しんでる記録。
+
+ピックアップ記事: []()
 
 ### Blog: [機械と学習する](https://learning-with-machine.hatenablog.com/)
 
@@ -27,3 +29,5 @@
 - connpass
 
 ## 略歴
+
+[略歴/職歴](career_history.md)
