@@ -9,7 +9,6 @@
 新しいものから
 
 - [株式会社GliaComputing](https://www.glia-computing.com/)
-  - aaa
 - [株式会社クロスコンパス](https://www.cross-compass.com/)
 - 株式会社Platform ID
 - [ALSOK 綜合警備保障株式会社](https://www.alsok.co.jp/)
