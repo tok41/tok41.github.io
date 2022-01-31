@@ -20,16 +20,10 @@
 
 本を読んで何かを実装したり、主に統計学/機械学習分野の学習記録
 
-ピックアップ: [ベイズ推論により混合分布のパラメータ推論をやってみる　〜混合数の推論２〜](https://learning-with-machine.hatenablog.com/entry/2020/08/27/190000)
+ピックアップ: [ベイズ推論により混合分布のパラメータ推論をやってみる 〜混合数の推論２〜](https://learning-with-machine.hatenablog.com/entry/2020/08/27/190000)
 
 - 混合モデル好きです
 - この記事は、混合モデルの混合数を含めて推定するために、ディリクレ過程混合モデルを実装してみた話
-
-### [統計の森](https://www.hello-statisticians.com/)
-
-こちらのWebサイトの運営をやっています（共同運営）。
-
-[統計の森](https://www.hello-statisticians.com/)では、統計学に関した様々なトピックを取り扱っています。なるべく「本質的な理解」ができるようにそれぞれのトピックの作成を行っています。
 
 ### [Udemy](https://www.udemy.com/user/yoichi-tokita/)
 
@@ -41,7 +35,7 @@
 
 ## その他の活動
 
-- [connpass](https://connpass.com/user/yoichi_t/)
+- [connpass](https://learn-stats-ml.connpass.com/)
   - 主に輪読会を主催しています
 - [SlideShare](https://www.slideshare.net/YoichiTokita)
   - 勉強会での発表資料などをまとめています
