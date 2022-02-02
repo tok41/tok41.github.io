@@ -27,7 +27,7 @@
 
 ### [Udemy](https://www.udemy.com/user/yoichi-tokita/)
 
-[Pythonで実践する統計モデリング入門](https://www.udemy.com/course/python-stats-modeling/?couponCode=68C2670AFD70A40AB1C3)
+[Pythonで実践する統計モデリング入門](https://www.udemy.com/course/python-stats-modeling/?couponCode=BAF6F9A52D66313A6CEE)
 
 統計モデルの基礎を学習するためのコースを作成しました。
 本コースは、「確率モデル」にフォーカスして最尤法やベイズ推論を俯瞰して眺められるように意識して作成しています。
