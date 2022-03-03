@@ -9,6 +9,6 @@
 最近のものから
 
 - [株式会社GliaComputing](https://www.glia-computing.com/)
-- AIベンチャー
-- Webの広告会社
-- 大手警備会社
+- [株式会社クロスコンパス](https://www.cross-compass.com/)
+- 株式会社Platform-id
+- [綜合警備保障株式会社](https://www.alsok.co.jp/)
